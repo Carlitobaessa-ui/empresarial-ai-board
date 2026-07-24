@@ -17,9 +17,10 @@ function loadScript(src) {
   });
 }
 
-// Botoes "Continuar com Google" e "Continuar com Apple". So aparecem se as
-// respectivas VITE_GOOGLE_CLIENT_ID / VITE_APPLE_CLIENT_ID estiverem definidas
-// no frontend/.env. Ver backend/.env.example para instrucoes de configuracao.
+// Botao "Continuar com Google" so aparece se VITE_GOOGLE_CLIENT_ID estiver
+// definida. O botao "Continuar com Apple" aparece SEMPRE, mas fica desativado
+// (com aviso "em breve") ate VITE_APPLE_CLIENT_ID ser definida - ver
+// backend/.env.example para instrucoes de configuracao de cada provedor.
 export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
   const { loginWithToken } = useAuth();
   const googleDivRef = useRef(null);
@@ -56,6 +57,7 @@ export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
   }, []);
 
   async function handleApple() {
+    if (!APPLE_CLIENT_ID) return;
     setError("");
     try {
       await loadScript(
@@ -83,21 +85,23 @@ export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
     }
   }
 
-  if (!GOOGLE_CLIENT_ID && !APPLE_CLIENT_ID) return null;
-
   return (
     <div className="mb-4">
       <div className="space-y-2">
         {GOOGLE_CLIENT_ID && <div ref={googleDivRef} className="flex justify-center" />}
-        {APPLE_CLIENT_ID && (
-          <button
-            type="button"
-            onClick={handleApple}
-            className="w-full hairline rounded-lg py-2.5 text-sm text-ink hover:bg-cream transition"
-          >
-            Continuar com Apple
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleApple}
+          disabled={!APPLE_CLIENT_ID}
+          title={!APPLE_CLIENT_ID ? "Em breve" : undefined}
+          className={`w-full hairline rounded-lg py-2.5 text-sm transition ${
+            APPLE_CLIENT_ID
+              ? "text-ink hover:bg-cream"
+              : "text-ink-muted opacity-50 cursor-not-allowed"
+          }`}
+        >
+          Continuar com Apple{!APPLE_CLIENT_ID && " (em breve)"}
+        </button>
       </div>
       {error && <p className="text-xs text-red-700 mt-2">{error}</p>}
       <div className="flex items-center gap-3 pt-4">
