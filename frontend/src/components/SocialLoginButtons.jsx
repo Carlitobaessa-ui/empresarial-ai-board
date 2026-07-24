@@ -21,6 +21,11 @@ function loadScript(src) {
 // definida. O botao "Continuar com Apple" aparece SEMPRE, mas fica desativado
 // ate VITE_APPLE_CLIENT_ID ser definida - ver backend/.env.example para
 // instrucoes de configuracao de cada provedor.
+//
+// Importante: a navegacao pos-login usa window.location.hash (nao
+// window.location.href) porque o app roda com HashRouter no GitHub Pages.
+// Definir location.href = "/pricing" navegaria para a raiz do dominio
+// (fora da subpasta do repo) e resultaria em 404 da pagina do GitHub Pages.
 export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
   const { loginWithToken } = useAuth();
   const googleDivRef = useRef(null);
@@ -38,7 +43,7 @@ export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
             try {
               const data = await api.loginWithGoogle(response.credential);
               loginWithToken(data.token, data.user);
-              window.location.href = afterAuthPath;
+              window.location.hash = afterAuthPath;
             } catch (err) {
               setError(err.message);
             }
@@ -75,7 +80,7 @@ export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
         : undefined;
       const data = await api.loginWithApple(res.authorization.id_token, name);
       loginWithToken(data.token, data.user);
-      window.location.href = afterAuthPath;
+      window.location.hash = afterAuthPath;
     } catch (err) {
       setError(
         err?.error === "popup_closed_by_user"
