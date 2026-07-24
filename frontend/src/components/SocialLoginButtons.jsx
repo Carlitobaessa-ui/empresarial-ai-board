@@ -19,8 +19,8 @@ function loadScript(src) {
 
 // Botao "Continuar com Google" so aparece se VITE_GOOGLE_CLIENT_ID estiver
 // definida. O botao "Continuar com Apple" aparece SEMPRE, mas fica desativado
-// (com aviso "em breve") ate VITE_APPLE_CLIENT_ID ser definida - ver
-// backend/.env.example para instrucoes de configuracao de cada provedor.
+// ate VITE_APPLE_CLIENT_ID ser definida - ver backend/.env.example para
+// instrucoes de configuracao de cada provedor.
 export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
   const { loginWithToken } = useAuth();
   const googleDivRef = useRef(null);
@@ -93,14 +93,13 @@ export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
           type="button"
           onClick={handleApple}
           disabled={!APPLE_CLIENT_ID}
-          title={!APPLE_CLIENT_ID ? "Em breve" : undefined}
           className={`w-full hairline rounded-lg py-2.5 text-sm transition ${
             APPLE_CLIENT_ID
               ? "text-ink hover:bg-cream"
               : "text-ink-muted opacity-50 cursor-not-allowed"
           }`}
         >
-          Continuar com Apple{!APPLE_CLIENT_ID && " (em breve)"}
+          Continuar com Apple
         </button>
       </div>
       {error && <p className="text-xs text-red-700 mt-2">{error}</p>}
