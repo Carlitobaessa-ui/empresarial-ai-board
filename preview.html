@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conselho de Agentes Especialistas</title>
+<style>
+  :root{
+    --cream:#F5F3EC;
+    --surface:#FCFBF7;
+    --ink:#2B2823;
+    --ink-muted:#6B665D;
+    --line:rgba(30,27,23,0.10);
+    --accent:#D97757;
+    --accent-dark:#BC5F42;
+    --accent-soft:#F1DFD3;
+    --c-conselho:#8A6D3B;
+    --c-ceo:#D97757;
+    --c-cio:#3E6B8A;
+    --c-cfo:#2F7D5A;
+    --c-processos:#6B5CA5;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    font-weight:400;
+    margin:0;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px;}
+  .hairline{border:1px solid var(--line);}
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:0 1px 2px rgba(43,40,35,0.06);
+  }
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:20;
+    background:rgba(245,243,236,0.86);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  header .bar{display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;font-size:15px;letter-spacing:.01em;}
+  .brand .mark{width:20px;height:20px;flex:none;}
+  nav{display:flex;gap:26px;font-size:13.5px;color:var(--ink-muted);}
+  nav a:hover{color:var(--ink);}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:9px 18px;border-radius:10px;font-size:13.5px;font-weight:500;
+    cursor:pointer;border:1px solid transparent;transition:opacity .15s ease;
+  }
+  .btn:hover{opacity:.88;}
+  .btn-primary{background:var(--ink);color:var(--cream);}
+  .btn-ghost{border-color:var(--line);color:var(--ink);background:transparent;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:88px 0 64px;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;}
+  .eyebrow{
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent-dark);margin-bottom:18px;font-weight:600;
+  }
+  .hero h1{font-size:42px;line-height:1.18;letter-spacing:-.01em;}
+  .hero p.lead{font-size:16px;line-height:1.6;color:var(--ink-muted);max-width:46ch;margin-top:18px;}
+  .hero-ctas{display:flex;gap:12px;margin-top:30px;}
+  .hero-note{font-size:12px;color:var(--ink-muted);margin-top:16px;}
+
+  /* ---------- diagram ---------- */
+  .diagram-wrap{display:flex;justify-content:center;}
+  #diagram{width:100%;max-width:460px;height:auto;}
+  .node-circle{fill:var(--surface);stroke-width:1.6;transition:transform .18s ease, filter .18s ease;}
+  .node-group{cursor:pointer;}
+  .node-group:hover .node-circle, .node-group.active .node-circle{
+    filter:drop-shadow(0 3px 8px rgba(43,40,35,0.18));
+  }
+  .node-group:hover .node-label, .node-group.active .node-label{fill:var(--ink);}
+  .spoke{stroke:var(--line);stroke-width:1;}
+  .orbit{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:2 5;}
+  .node-label{font-family:Inter,sans-serif;font-size:11.5px;fill:var(--ink-muted);}
+  .hub-label{font-family:"Iowan Old Style",Georgia,serif;font-size:13px;fill:var(--ink);}
+  .hub-sub{font-family:Inter,sans-serif;font-size:9.5px;fill:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;}
+
+  /* ---------- section shell ---------- */
+  section{padding:64px 0;}
+  .section-head{max-width:56ch;margin-bottom:40px;}
+  .section-head .eyebrow{margin-bottom:12px;}
+  .section-head h2{font-size:28px;letter-spacing:-.01em;}
+  .section-head p{color:var(--ink-muted);font-size:14.5px;line-height:1.6;margin-top:10px;}
+
+  /* ---------- como funciona ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative;}
+  .step{padding:26px 24px;position:relative;}
+  .step:not(:last-child)::after{
+    content:"";position:absolute;top:38px;right:-2px;width:calc(100% - 44px);
+    height:1px;background:var(--line);
+  }
+  .step-num{
+    width:30px;height:30px;border-radius:50%;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;
+    color:var(--ink-muted);margin-bottom:16px;background:var(--surface);position:relative;z-index:1;
+  }
+  .step h3{font-size:16px;margin-bottom:8px;}
+  .step p{font-size:13.5px;color:var(--ink-muted);line-height:1.55;margin:0;}
+
+  /* ---------- agentes ---------- */
+  .agent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .agent-card{padding:24px;display:flex;flex-direction:column;gap:12px;}
+  .agent-top{display:flex;align-items:center;gap:12px;}
+  .agent-icon{
+    width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    flex:none;border:1px solid var(--line);background:var(--cream);
+  }
+  .agent-name{font-family:"Iowan Old Style",Georgia,serif;font-size:16px;}
+  .agent-role{font-size:11.5px;color:var(--ink-muted);}
+  .agent-desc{font-size:13px;color:var(--ink-muted);line-height:1.55;flex:1;}
+  .agent-price{
+    display:flex;align-items:baseline;justify-content:space-between;
+    border-top:1px solid var(--line);padding-top:12px;margin-top:2px;
+  }
+  .agent-price .val{font-size:15px;font-weight:600;}
+  .agent-price .per{font-size:11px;color:var(--ink-muted);}
+
+  /* ---------- planos ---------- */
+  .plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .plan-card{padding:28px;position:relative;}
+  .plan-card.featured{border-color:var(--accent);box-shadow:0 2px 10px rgba(217,119,87,0.12);}
+  .plan-tag{
+    position:absolute;top:-11px;left:24px;background:var(--accent);color:#fff;
+    font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;font-weight:600;
+  }
+  .plan-name{font-size:18px;margin-bottom:6px;}
+  .plan-desc{font-size:13px;color:var(--ink-muted);line-height:1.55;margin-bottom:18px;}
+  .plan-price{font-size:30px;font-weight:600;letter-spacing:-.01em;}
+  .plan-price span{font-size:13px;font-weight:500;color:var(--ink-muted);}
+  .plan-includes{list-style:none;margin:18px 0 22px;padding:0;font-size:13px;color:var(--ink);}
+  .plan-includes li{display:flex;gap:8px;padding:5px 0;color:var(--ink-muted);}
+  .plan-includes li b{color:var(--ink);font-weight:500;}
+  .plan-includes li::before{content:"—";color:var(--accent-dark);flex:none;}
+
+  /* ---------- cta / footer ---------- */
+  .cta-band{
+    margin:8px 0 0;padding:40px;text-align:center;
+    background:var(--ink);color:var(--cream);border-radius:16px;
+  }
+  .cta-band h2{color:var(--cream);font-size:24px;margin-bottom:10px;}
+  .cta-band p{color:rgba(245,243,236,0.7);font-size:13.5px;max-width:52ch;margin:0 auto 22px;}
+  .cta-band .btn-primary{background:var(--accent);color:#fff;}
+  .run-box{
+    margin-top:26px;text-align:left;background:rgba(245,243,236,0.06);
+    border:1px solid rgba(245,243,236,0.14);border-radius:10px;padding:16px 18px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;
+    color:#F1DFD3;overflow-x:auto;
+  }
+  footer{padding:40px 0 60px;border-top:1px solid var(--line);margin-top:20px;}
+  footer .foot-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink-muted);}
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-muted);
+    border:1px solid var(--line);padding:5px 10px;border-radius:999px;background:var(--surface);
+  }
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;}
+    .diagram-wrap{order:-1;}
+    .steps{grid-template-columns:1fr;}
+    .step:not(:last-child)::after{display:none;}
+    .agent-grid{grid-template-columns:1fr 1fr;}
+    .plans-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:600px){
+    .agent-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#D97757" stroke-width="1.4"/><circle cx="10" cy="10" r="2.4" fill="#D97757"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3" stroke="#D97757" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span>Conselho de Agentes Especialistas</span>
+    </div>
+    <nav>
+      <a href="#agentes">Agentes</a>
+      <a href="#funciona">Como funciona</a>
+      <a href="#planos">Planos</a>
+      <a href="#acessar">Acessar o app</a>
+    </nav>
+    <a href="#planos" class="btn btn-primary">Ver planos</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Para empreendedores e gestores</div>
+      <h1>Um conselho executivo de&nbsp;agentes especialistas, sempre disponível.</h1>
+      <p class="lead">
+        Conselho, CEO, CIO, CFO e Processos de Negócio — cada um com frameworks de
+        mercado, modelos mentais e 26&nbsp;anos de experiência profissional
+        compostos por você, prontos para orientar as decisões da empresa.
+      </p>
+      <div class="hero-ctas">
+        <a href="#planos" class="btn btn-primary">Ver planos e preços</a>
+        <a href="#agentes" class="btn btn-ghost">Conhecer os agentes</a>
+      </div>
+      <div class="hero-note">Passe o mouse sobre um agente para destacá-lo no diagrama →</div>
+    </div>
+
+    <div class="diagram-wrap">
+      <svg id="diagram" viewBox="0 0 600 560" fill="none">
+        <circle class="orbit" cx="300" cy="300" r="170"/>
+        <line class="spoke" x1="300" y1="300" x2="300" y2="130"/>
+        <line class="spoke" x1="300" y1="300" x2="461.7" y2="247.5"/>
+        <line class="spoke" x1="300" y1="300" x2="400" y2="437.5"/>
+        <line class="spoke" x1="300" y1="300" x2="200" y2="437.5"/>
+        <line class="spoke" x1="300" y1="300" x2="138.3" y2="247.5"/>
+
+        <!-- hub -->
+        <circle cx="300" cy="300" r="52" fill="var(--cream)" stroke="var(--line)" stroke-width="1.2"/>
+        <text x="300" y="296" text-anchor="middle" class="hub-label">Seu negócio</text>
+        <text x="300" y="312" text-anchor="middle" class="hub-sub">você decide</text>
+
+        <!-- conselho -->
+        <g class="node-group" data-agent="conselho" transform="translate(300,130)">
+          <circle class="node-circle" r="34" stroke="var(--c-conselho)"/>
+          <path d="M-9,-7 v14 M0,-10 v17 M9,-7 v14" stroke="var(--c-conselho)" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="0" y="52" text-anchor="middle" class="node-label">Conselho</text>
+        </g>
+
+        <!-- ceo -->
+        <g class="node-group" data-agent="ceo" transform="translate(461.7,247.5)">
+          <circle class="node-circle" r="34" stroke="var(--c-ceo)"/>
+          <path d="M-9,8 L0,-9 L9,8 M0,-9 V9" stroke="var(--c-ceo)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <text x="0" y="52" text-anchor="middle" class="node-label">CEO</text>
+        </g>
+
+        <!-- cio -->
+        <g class="node-group" data-agent="cio" transform="translate(400,437.5)">
+          <circle class="node-circle" r="34" stroke="var(--c-cio)"/>
+          <rect x="-8" y="-8" width="16" height="16" rx="2" stroke="var(--c-cio)" stroke-width="1.4" fill="none"/>
+          <path d="M-8,-3 h-4 M-8,3 h-4 M12,-3 h-4 M12,3 h-4 M-3,-8 v-4 M3,-8 v-4 M-3,12 v-4 M3,12 v-4" stroke="var(--c-cio)" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="0" y="52" text-anchor="middle" class="node-label">CIO</text>
+        </g>
+
+        <!-- cfo -->
+        <g class="node-group" data-agent="cfo" transform="translate(200,437.5)">
+          <circle class="node-circle" r="34" stroke="var(--c-cfo)"/>
+          <path d="M-10,9 v-8 M-2,9 v-14 M6,9 v-6" stroke="var(--c-cfo)" stroke-width="2" stroke-linecap="round"/>
+          <text x="0" y="52" text-anchor="middle" class="node-label">CFO</text>
+        </g>
+
+        <!-- processos -->
+        <g class="node-group" data-agent="processos" transform="translate(138.3,247.5)">
+          <circle class="node-circle" r="34" stroke="var(--c-processos)"/>
+          <path d="M-9,-2 a9,9 0 1 1 2,6" stroke="var(--c-processos)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M-9,2 l-2.6,4 M-9,2 l4,1.4" stroke="var(--c-processos)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <text x="0" y="52" text-anchor="middle" class="node-label">Processos</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="funciona">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Como funciona</div>
+      <h2>Conhecimento composto por você, entregue por IA</h2>
+      <p>Cada agente combina boas práticas de mercado com a experiência real de quem compõe o conteúdo no painel administrativo.</p>
+    </div>
+    <div class="steps hairline card">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Você escolhe o agente</h3>
+        <p>Conselho, CEO, CIO, CFO ou Processos — individualmente ou em pacote, conforme o que sua empresa precisa agora.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>O agente responde com contexto</h3>
+        <p>Frameworks, modelos mentais, métodos de trabalho e experiência prática são combinados automaticamente em cada resposta.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Você decide e executa</h3>
+        <p>Respostas objetivas, com trade-offs claros e próximos passos — não relatórios genéricos de IA.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="agentes">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Os cinco agentes</div>
+      <h2>Um especialista para cada frente da empresa</h2>
+      <p>Preços mensais individuais — combine com um dos pacotes na seção de planos para economizar.</p>
+    </div>
+    <div class="agent-grid">
+
+      <div class="card agent-card" data-agent="conselho">
+        <div class="agent-top">
+          <div class="agent-icon"><svg width="18" height="18" viewBox="0 0 20 20"><path d="M4,4 v12 M10,2 v14 M16,4 v12" stroke="var(--c-conselho)" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+          <div><div class="agent-name">Conselho Consultivo</div><div class="agent-role">Board Advisor · Governança</div></div>
+        </div>
+        <div class="agent-desc">Visão de conselho: governança, direção estratégica de longo prazo e ponderação de riscos e oportunidades.</div>
+        <div class="agent-price"><span class="val">R$ 297</span><span class="per">/mês</span></div>
+      </div>
+
+      <div class="card agent-card" data-agent="ceo">
+        <div class="agent-top">
+          <div class="agent-icon"><svg width="18" height="18" viewBox="0 0 20 20"><path d="M4,15 L10,3 L16,15 M10,3 v14" stroke="var(--c-ceo)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+          <div><div class="agent-name">CEO</div><div class="agent-role">Direção Executiva</div></div>
+        </div>
+        <div class="agent-desc">Visão executiva: foco, priorização estratégica, alinhamento de time e execução.</div>
+        <div class="agent-price"><span class="val">R$ 227</span><span class="per">/mês</span></div>
+      </div>
+
+      <div class="card agent-card" data-agent="cio">
+        <div class="agent-top">
+          <div class="agent-icon"><svg width="18" height="18" viewBox="0 0 20 20"><rect x="6" y="6" width="8" height="8" rx="1" stroke="var(--c-cio)" stroke-width="1.4" fill="none"/><path d="M6,8 H3 M6,12 H3 M17,8 H14 M17,12 H14 M8,6 V3 M12,6 V3 M8,17 V14 M12,17 V14" stroke="var(--c-cio)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+          <div><div class="agent-name">CIO</div><div class="agent-role">Tecnologia e Sistemas</div></div>
+        </div>
+        <div class="agent-desc">Visão de tecnologia: arquitetura, segurança, dados e portfólio de sistemas a serviço do negócio.</div>
+        <div class="agent-price"><span class="val">R$ 197</span><span class="per">/mês</span></div>
+      </div>
+
+      <div class="card agent-card" data-agent="cfo">
+        <div class="agent-top">
+          <div class="agent-icon"><svg width="18" height="18" viewBox="0 0 20 20"><path d="M5,16 V10 M10,16 V4 M15,16 V8" stroke="var(--c-cfo)" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div><div class="agent-name">CFO</div><div class="agent-role">Finanças Corporativas</div></div>
+        </div>
+        <div class="agent-desc">Visão financeira: caixa, unit economics, orçamento e sustentabilidade do crescimento.</div>
+        <div class="agent-price"><span class="val">R$ 227</span><span class="per">/mês</span></div>
+      </div>
+
+      <div class="card agent-card" data-agent="processos">
+        <div class="agent-top">
+          <div class="agent-icon"><svg width="18" height="18" viewBox="0 0 20 20"><path d="M4,10 a6,6 0 1 1 1.6,4.1" stroke="var(--c-processos)" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M4,10 l-1.8,2.8 M4,10 l2.8,1" stroke="var(--c-processos)" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></div>
+          <div><div class="agent-name">Processos de Negócio</div><div class="agent-role">Operações e Melhoria Contínua</div></div>
+        </div>
+        <div class="agent-desc">Visão operacional: mapeamento, padronização e melhoria contínua de processos.</div>
+        <div class="agent-price"><span class="val">R$ 167</span><span class="per">/mês</span></div>
+      </div>
+
+      <div class="card agent-card" style="align-items:flex-start;justify-content:center;background:var(--cream);border-style:dashed;">
+        <div class="agent-desc" style="font-size:13px;">
+          Todo o conteúdo acima (frameworks, modelos mentais, métodos e a
+          experiência de 26 anos) é editado por você no Painel Admin do app —
+          isto aqui é só a prévia visual.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="planos">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Planos</div>
+      <h2>Assine por agente ou em pacote</h2>
+      <p>Pacotes combinam agentes com desconto sobre o valor somado individualmente.</p>
+    </div>
+    <div class="plans-grid">
+      <div class="card plan-card featured">
+        <div class="plan-tag">Mais completo</div>
+        <div class="plan-name">Conselho Completo</div>
+        <div class="plan-desc">Acesso aos 5 agentes especialistas com um único plano.</div>
+        <div class="plan-price">R$ 697<span>/mês</span></div>
+        <ul class="plan-includes">
+          <li><b>Conselho Consultivo</b> incluído</li>
+          <li><b>CEO</b> incluído</li>
+          <li><b>CIO</b> incluído</li>
+          <li><b>CFO</b> incluído</li>
+          <li><b>Processos de Negócio</b> incluído</li>
+        </ul>
+        <a href="#acessar" class="btn btn-primary" style="width:100%;">Assinar Conselho Completo</a>
+      </div>
+      <div class="card plan-card">
+        <div class="plan-name">Essencial — CEO + CFO</div>
+        <div class="plan-desc">Os dois agentes mais usados por quem toca o dia a dia do negócio.</div>
+        <div class="plan-price">R$ 347<span>/mês</span></div>
+        <ul class="plan-includes">
+          <li><b>CEO</b> incluído</li>
+          <li><b>CFO</b> incluído</li>
+        </ul>
+        <a href="#acessar" class="btn btn-ghost" style="width:100%;">Assinar Essencial</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="acessar">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>Isto é uma prévia estática</h2>
+      <p>
+        Esta página mostra o design e os preços, mas não conversa com os agentes
+        de verdade nem processa assinaturas. Para acessar o app completo (login,
+        chat com os agentes e cobrança via Stripe), rode o projeto localmente:
+      </p>
+      <div class="run-box">bash start.sh</div>
+      <p style="margin-top:14px;">
+        Depois abra <b style="color:#F5F3EC;">http://localhost:5173</b> no navegador.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <span>Conselho de Agentes Especialistas — prévia visual do produto</span>
+    <span class="badge"><span class="dot"></span> preview estático, sem backend</span>
+  </div>
+</footer>
+
+<script>
+  // Hover cruzado entre cards de agente e nós do diagrama.
+  document.querySelectorAll('[data-agent]').forEach(function (el) {
+    var key = el.getAttribute('data-agent');
+    var pair = document.querySelectorAll('[data-agent="' + key + '"]');
+    el.addEventListener('mouseenter', function () {
+      pair.forEach(function (p) { p.classList.add('active'); });
+    });
+    el.addEventListener('mouseleave', function () {
+      pair.forEach(function (p) { p.classList.remove('active'); });
+    });
+  });
+</script>
+
+</body>
+</html>
