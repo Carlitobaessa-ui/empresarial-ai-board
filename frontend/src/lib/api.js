@@ -1,4 +1,9 @@
-const BASE = "/api";
+// Em desenvolvimento local, VITE_API_URL fica vazio e o Vite faz proxy de
+// /api para o backend (ver vite.config.js). Em produção (GitHub Pages), o
+// build injeta VITE_API_URL com a URL pública do backend (ex.: Render),
+// porque frontend e backend ficam hospedados em domínios diferentes.
+const API_ORIGIN = import.meta.env.VITE_API_URL || "";
+const BASE = `${API_ORIGIN}/api`;
 const TOKEN_KEY = "board_auth_token";
 
 export function getToken() {

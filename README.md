@@ -35,6 +35,9 @@ mas só se o usuário logado tiver assinatura ativa para aquele agente.
 ```
 empresarial-ai-board/
 ├── start.sh                   Sobe backend + frontend juntos com 1 comando
+├── preview.html                Prévia visual estática (sem backend), abre com duplo clique
+├── render.yaml                 Blueprint de deploy do backend no Render
+├── .github/workflows/deploy-pages.yml   Publica o frontend no GitHub Pages a cada push
 ├── backend/     Node.js + Express + banco em arquivo JSON (lowdb)
 │   ├── data/agentsSeed.js      Conteúdo e preço inicial dos 5 agentes
 │   ├── data/bundlesSeed.js     Pacotes iniciais (Conselho Completo, Essencial)
@@ -147,6 +150,72 @@ domínio HTTPS real:
 Se essas variáveis ficarem vazias, o botão correspondente simplesmente não
 aparece na tela de login — o login por e-mail/senha continua funcionando
 normalmente.
+
+## Publicando no GitHub e rodando de qualquer navegador (deploy)
+
+O código já está versionado em Git. Para o app funcionar num link acessível de
+qualquer navegador — não só no seu computador — frontend e backend precisam
+ficar hospedados em dois lugares diferentes, porque o GitHub sozinho só serve
+arquivos estáticos:
+
+- **Frontend (React)** → GitHub Pages, direto deste repositório, via GitHub Actions.
+- **Backend (Node/Express)** → um serviço que roda Node de verdade. O projeto já
+  vem pronto para o [Render](https://render.com) (plano gratuito), com um
+  `render.yaml` na raiz.
+
+### 1. Enviar o código para o GitHub
+
+```bash
+cd empresarial-ai-board
+gh repo create empresarial-ai-board --private --source=. --remote=origin --push
+```
+
+(troque `--private` por `--public` se quiser o repositório aberto.)
+
+### 2. Publicar o backend no Render
+
+1. Crie uma conta em [render.com](https://render.com) e conecte sua conta do GitHub.
+2. No dashboard, clique em **New +** → **Blueprint** e selecione o repositório
+   `empresarial-ai-board`. O Render lê o `render.yaml` da raiz e já configura o
+   serviço `empresarial-ai-board-api` (pasta `backend`, `npm install`, `npm start`).
+3. Depois que o serviço for criado, abra **Environment** e preencha as
+   variáveis obrigatórias: `ANTHROPIC_API_KEY`, `ADMIN_PASSWORD`, `APP_URL` (a
+   URL do seu GitHub Pages — ver passo 3) e, se for usar, `STRIPE_SECRET_KEY`,
+   `STRIPE_WEBHOOK_SECRET`, `GOOGLE_CLIENT_ID`, `APPLE_CLIENT_ID`. O
+   `JWT_SECRET` já é gerado automaticamente pelo Render.
+4. Copie a URL pública gerada pelo Render (algo como
+   `https://empresarial-ai-board-api.onrender.com`).
+
+**Nota sobre dados:** no plano gratuito do Render o disco não é persistente
+entre reinicializações — o `board.json` (usuários, conversas, assinaturas)
+pode ser resetado quando o serviço reinicia após ficar inativo. Ótimo para
+demonstrar o produto; para uso real, migre para um banco gerenciado (Postgres,
+por exemplo) ou ative um disco persistente pago no Render.
+
+### 3. Publicar o frontend no GitHub Pages
+
+1. No GitHub, vá em **Settings → Pages** e em "Build and deployment" escolha
+   **Source: GitHub Actions** (o workflow já está em
+   `.github/workflows/deploy-pages.yml`).
+2. Ainda no GitHub, vá em **Settings → Secrets and variables → Actions** e
+   crie o secret `VITE_API_URL` com a URL do backend copiada no passo
+   anterior. Se for usar login social, crie também `VITE_GOOGLE_CLIENT_ID`
+   e/ou `VITE_APPLE_CLIENT_ID`.
+3. Faça um novo commit/push em `main` (ou rode o workflow manualmente em
+   **Actions → Deploy frontend no GitHub Pages → Run workflow**). Em alguns
+   minutos o app fica disponível em:
+   `https://SEU-USUARIO-GITHUB.github.io/empresarial-ai-board/`
+4. Volte no Render e atualize a variável `APP_URL` do backend com essa mesma
+   URL (usada pelos redirects do Stripe).
+
+Pronto: esse link funciona em qualquer navegador, em qualquer computador, sem
+precisar rodar nada localmente. As rotas usam `#` na URL (ex.: `/#/pricing`)
+porque o GitHub Pages não suporta redirecionamento de rotas no servidor — é
+uma limitação cosmética, não afeta o funcionamento.
+
+Bônus: como o GitHub Pages já é HTTPS de verdade, o login com Apple (que não
+funciona em `localhost`) passa a funcionar nessa URL publicada, desde que o
+domínio esteja cadastrado no Apple Developer.
 
 ## Compondo o conhecimento de cada agente (o que você faz no Admin)
 
