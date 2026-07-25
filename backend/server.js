@@ -26,12 +26,12 @@ app.use(express.json({ limit: "2mb" }));
 app.get("/", (_req, res) => {
   res.type("html").send(`<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
-<title>Conselho de Agentes Especialistas - API</title>
+<title>appagente #consultivo - API</title>
 <style>body{font-family:system-ui,sans-serif;max-width:34rem;margin:6rem auto;padding:0 1.5rem;color:#2b2b28;line-height:1.6}
 code{background:#f2efe9;padding:.15rem .4rem;border-radius:4px}a{color:#b8551f}</style></head>
 <body><h1>API no ar</h1>
-<p>Este endereco e apenas o <strong>backend</strong> (API) do Conselho de Agentes
-Especialistas. Ele nao tem interface visual.</p>
+<p>Este endereco e apenas o <strong>backend</strong> (API) do appagente
+#consultivo. Ele nao tem interface visual.</p>
 <p>Para usar o sistema, acesse o aplicativo:<br>
 <a href="https://carlitobaessa-ui.github.io/empresarial-ai-board/">carlitobaessa-ui.github.io/empresarial-ai-board</a></p>
 <p>Status do servico: <code>/api/health</code></p>
@@ -56,5 +56,5 @@ app.use((err, _req, res, _next) => {
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Backend do Conselho de Agentes rodando em http://localhost:${PORT}`);
+  console.log(`Backend do appagente #consultivo rodando em http://localhost:${PORT}`);
 });
