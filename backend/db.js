@@ -65,5 +65,23 @@ async function seedBundlesIfEmpty() {
   console.log(`Seed: ${db.data.bundles.length} pacotes criados.`);
 }
 
+async function ensureConsultivoPrefix() {
+  const prefix = "#consultivo ";
+  let changed = false;
+
+  for (const agent of db.data.agents) {
+    if (!agent.name.startsWith(prefix)) {
+      agent.name = `${prefix}${agent.name}`;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    await db.write();
+    console.log("Migracao: prefixo #consultivo adicionado ao nome dos agentes.");
+  }
+}
+
 await seedAgentsIfEmpty();
 await seedBundlesIfEmpty();
+await ensureConsultivoPrefix();
