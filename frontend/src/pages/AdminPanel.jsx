@@ -4,6 +4,7 @@ import { api } from "../lib/api.js";
 import AgentIcon from "../components/AgentIcon.jsx";
 import AgentEditor from "./AgentEditor.jsx";
 import BundleEditor from "./BundleEditor.jsx";
+import UsersPanel from "./UsersPanel.jsx";
 
 const PASSWORD_STORAGE_KEY = "board_admin_password";
 
@@ -17,6 +18,8 @@ export default function AdminPanel() {
 
   const [agents, setAgents] = useState([]);
   const [bundles, setBundles] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   // billingEnabled = true: usuarios precisam de assinatura ativa para conversar
   // com um agente. false: todos os agentes ficam liberados (modo de testes).
   const [billingEnabled, setBillingEnabled] = useState(true);
@@ -52,6 +55,16 @@ export default function AdminPanel() {
     api.listAgents(true).then(setAgents);
     api.listBundles(true).then(setBundles);
     api.getSettings().then((s) => setBillingEnabled(s.billingEnabled !== false));
+    loadUsers();
+  }
+
+  function loadUsers() {
+    setUsersLoading(true);
+    api
+      .adminListUsers(password)
+      .then(setUsers)
+      .catch((err) => setNotice(err.message))
+      .finally(() => setUsersLoading(false));
   }
 
   async function handleToggleBilling() {
@@ -251,6 +264,21 @@ export default function AdminPanel() {
           ))}
         </div>
         <div className="px-4 py-3 hairline-t">
+          <button
+            onClick={() => {
+              setSelection({ kind: "users" });
+              setNotice("");
+            }}
+            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition hover:bg-surface ${
+              selection?.kind === "users" ? "bg-surface hairline" : ""
+            }`}
+          >
+            <span className="text-sm text-ink">Usuários e conversas</span>
+            <span className="text-[11px] text-ink-muted">{users.length}</span>
+          </button>
+        </div>
+
+        <div className="px-4 py-3 hairline-t">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs uppercase tracking-wide text-ink-muted">Cobranca</span>
             <span
@@ -310,10 +338,14 @@ export default function AdminPanel() {
           />
         )}
 
+        {selection?.kind === "users" && (
+          <UsersPanel users={users} loading={usersLoading} onRefresh={loadUsers} />
+        )}
+
         {!selection && (
           <div className="flex-1 flex items-center justify-center text-ink-muted text-sm px-8 text-center">
-            Selecione um agente ou pacote à esquerda para editar - ou crie um
-            novo agente especialista ou pacote de assinatura.
+            Selecione um agente, pacote ou "Usuários e conversas" à esquerda -
+            ou crie um novo agente especialista ou pacote de assinatura.
           </div>
         )}
       </main>
