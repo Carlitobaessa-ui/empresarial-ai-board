@@ -46,10 +46,19 @@ router.post("/", requireAuth, async (req, res) => {
   db.data.messages.push(userMessage);
   await db.write();
 
+  // Mensagens de um consultor humano (inseridas pelo Painel Admin) entram no
+  // historico como uma observacao identificada, para o agente de IA levar em
+  // conta o que o consultor disse ao responder a proxima mensagem do usuario.
   const history = db.data.messages
     .filter((m) => m.conversationId === conversationId)
     .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1))
-    .map((m) => ({ role: m.role, content: m.content }));
+    .map((m) => ({
+      role: m.role,
+      content:
+        m.role === "consultant"
+          ? `[Observacao enviada por um consultor humano, ${m.authorName || "Consultor"}, que acompanha esta conversa]: ${m.content}`
+          : m.content,
+    }));
 
   try {
     const replyText = await askAgent({ agent, history });
