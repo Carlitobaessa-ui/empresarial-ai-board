@@ -3,14 +3,42 @@ import AgentIcon from "./AgentIcon.jsx";
 // Diagrama "hub-and-spoke" que representa o modelo do produto:
 // um centro (voce / conselho) conectado por linhas finas a cada agente especialista.
 // Puramente decorativo/explicativo - usado na Landing e no topo do Admin.
+
+// Quebra o nome do agente em ate 3 linhas curtas para nao estourar a largura
+// do SVG (nomes longos, como os que terminam em "#consultivo", nao cabem
+// numa unica linha centralizada perto das bordas do diagrama).
+function wrapLabel(name, maxCharsPerLine = 13) {
+  const words = (name || "").split(" ");
+  const lines = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxCharsPerLine && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) lines.push(current);
+
+  return lines;
+}
+
 export default function BoardDiagram({ agents = [] }) {
-  const radius = 150;
-  const center = { x: 200, y: 170 };
+  const radius = 145;
+  const center = { x: 210, y: 175 };
   const nodes = agents.slice(0, 6);
   const angleStep = (2 * Math.PI) / Math.max(nodes.length, 1);
 
   return (
-    <svg viewBox="0 0 400 340" className="w-full max-w-md mx-auto" aria-hidden="true">
+    <svg
+      viewBox="0 0 420 380"
+      className="w-full max-w-md mx-auto"
+      style={{ overflow: "visible" }}
+      aria-hidden="true"
+    >
       {nodes.map((agent, i) => {
         const angle = -Math.PI / 2 + i * angleStep;
         const x = center.x + radius * Math.cos(angle);
@@ -40,6 +68,7 @@ export default function BoardDiagram({ agents = [] }) {
         const angle = -Math.PI / 2 + i * angleStep;
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
+        const lines = wrapLabel(agent.name);
         return (
           <g key={agent.id || i}>
             <circle
@@ -62,11 +91,15 @@ export default function BoardDiagram({ agents = [] }) {
               x={x}
               y={y + 40}
               textAnchor="middle"
-              fontSize="10.5"
+              fontSize="10"
               fill="#6B665D"
               fontFamily="Inter, sans-serif"
             >
-              {agent.name}
+              {lines.map((line, li) => (
+                <tspan key={li} x={x} dy={li === 0 ? 0 : 11.5}>
+                  {line}
+                </tspan>
+              ))}
             </text>
           </g>
         );
