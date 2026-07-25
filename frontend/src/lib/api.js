@@ -111,6 +111,12 @@ export const api = {
   // Usuarios e conversas (Painel Admin)
   adminListUsers: (adminPassword) =>
     request(`/admin/users`, { headers: { "x-admin-password": adminPassword } }),
+  adminSendConsultMessage: (conversationId, payload, adminPassword) =>
+    request(`/admin/conversations/${conversationId}/messages`, {
+      method: "POST",
+      headers: { "x-admin-password": adminPassword },
+      body: JSON.stringify(payload),
+    }),
 
   // Settings / admin
   getSettings: () => request(`/settings`),
