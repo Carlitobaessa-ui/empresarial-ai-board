@@ -109,6 +109,12 @@ export const api = {
 
   // Settings / admin
   getSettings: () => request(`/settings`),
+  setBilling: (billingEnabled, adminPassword) =>
+    request(`/settings/billing`, {
+      method: "PUT",
+      headers: { "x-admin-password": adminPassword },
+      body: JSON.stringify({ billingEnabled }),
+    }),
   checkAdmin: (adminPassword) =>
     request(`/settings/check-admin`, {
       method: "POST",
