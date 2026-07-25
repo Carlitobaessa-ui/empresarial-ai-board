@@ -8,6 +8,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // "Acorda" o backend (plano gratuito do Render dorme com inatividade e
+    // pode levar ate ~50s pra responder na primeira chamada). Disparar isso
+    // assim que qualquer pagina do app carrega evita que o login social
+    // (Google/Apple) falhe na primeira tentativa por causa do cold start.
+    api.health().catch(() => {});
+
     if (!getToken()) {
       setLoading(false);
       return;
