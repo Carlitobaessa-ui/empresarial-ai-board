@@ -16,7 +16,7 @@ router.get("/", requireAdmin, (_req, res) => {
         const messages = db.data.messages
           .filter((m) => m.conversationId === c.id)
           .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1))
-          .map(({ id, role, content, createdAt }) => ({ id, role, content, createdAt }));
+          .map(({ id, role, content, createdAt, authorName }) => ({ id, role, content, createdAt, authorName }));
 
         return {
           id: c.id,
