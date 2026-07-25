@@ -85,7 +85,7 @@ export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
         window.google.accounts.id.renderButton(googleDivRef.current, {
           theme: "outline",
           size: "large",
-          width: 320,
+          width: 328,
           text: "continue_with",
           locale: "pt-BR",
         });
@@ -130,18 +130,21 @@ export default function SocialLoginButtons({ afterAuthPath = "/app" }) {
 
   return (
     <div className="mb-4">
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         <button
           type="button"
           onClick={handleApple}
           disabled={!APPLE_CLIENT_ID}
-          className={`w-full hairline rounded-lg py-2.5 text-sm transition ${
+          className={`w-full rounded-lg py-3 text-sm font-medium transition flex items-center justify-center gap-2 ${
             APPLE_CLIENT_ID
-              ? "text-ink hover:bg-cream"
-              : "text-ink-muted opacity-50 cursor-not-allowed"
+              ? "bg-ink text-cream hover:bg-ink/90"
+              : "bg-ink/40 text-cream/70 cursor-not-allowed"
           }`}
         >
-          Continuar com Apple
+          <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" fill="currentColor" aria-hidden="true">
+            <path d="M16.365 1.43c0 1.14-.417 2.222-1.25 3.19-.982 1.16-2.13 1.833-3.375 1.727a3.4 3.4 0 0 1-.03-.5c0-1.114.487-2.253 1.284-3.086.83-.874 2.14-1.51 3.253-1.55.03.24.04.48.04.72zM20.9 17.63c-.437 1.02-.94 1.947-1.51 2.79-.79 1.166-1.436 1.973-1.928 2.42-.76.723-1.575 1.096-2.445 1.12-.62.017-1.37-.174-2.24-.56-.874-.386-1.678-.577-2.412-.577-.77 0-1.596.19-2.478.577-.883.386-1.596.588-2.146.607-.834.036-1.673-.35-2.516-1.16-.53-.48-1.207-1.313-2.03-2.5-.883-1.276-1.61-2.756-2.176-4.44C.293 13.35 0 11.72 0 10.15c0-1.8.39-3.354 1.17-4.66a6.86 6.86 0 0 1 2.446-2.484 6.61 6.61 0 0 1 3.31-.937c.66 0 1.53.204 2.61.606.075.03 1.66.71 1.68.71.16 0 1.31-.7 1.47-.75 1.16-.42 2.11-.6 2.86-.55a6.53 6.53 0 0 1 3.407 1.28c-.35.21-.66.45-.943.72a6.63 6.63 0 0 0-1.63 2.34c-.38.9-.57 1.85-.57 2.85 0 1.03.2 1.98.6 2.85.4.87.94 1.6 1.63 2.19.36.31.72.56 1.09.75-.11.33-.23.65-.37.97z" />
+          </svg>
+          Continuar com a Apple
         </button>
         {GOOGLE_CLIENT_ID && <div ref={googleDivRef} className="flex justify-center" />}
       </div>
