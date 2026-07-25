@@ -41,6 +41,7 @@ export const api = {
   login: (payload) => request(`/auth/login`, { method: "POST", body: JSON.stringify(payload) }),
   me: () => request(`/auth/me`),
   socialStatus: () => request(`/auth/social-status`),
+  health: () => request(`/health`),
   loginWithGoogle: (credential) =>
     request(`/auth/google`, { method: "POST", body: JSON.stringify({ credential }) }),
   loginWithApple: (identityToken, name) =>
