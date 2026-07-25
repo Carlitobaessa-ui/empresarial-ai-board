@@ -10,6 +10,7 @@ import chatRouter from "./routes/chat.js";
 import settingsRouter from "./routes/settings.js";
 import authRouter from "./routes/auth.js";
 import adminUsersRouter from "./routes/adminUsers.js";
+import adminConversationsRouter from "./routes/adminConversations.js";
 import billingRouter, { stripeWebhookHandler, rawBodyParser } from "./routes/billing.js";
 
 const app = express();
@@ -47,6 +48,7 @@ app.use("/api/chat", chatRouter);
 app.use("/api/settings", settingsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin/users", adminUsersRouter);
+app.use("/api/admin/conversations", adminConversationsRouter);
 app.use("/api/billing", billingRouter);
 
 app.use((err, _req, res, _next) => {
