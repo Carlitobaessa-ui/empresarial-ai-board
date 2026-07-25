@@ -65,23 +65,34 @@ async function seedBundlesIfEmpty() {
   console.log(`Seed: ${db.data.bundles.length} pacotes criados.`);
 }
 
-async function ensureConsultivoPrefix() {
+async function ensureConsultivoSuffix() {
   const prefix = "#consultivo ";
+  const suffix = " #consultivo";
   let changed = false;
 
   for (const agent of db.data.agents) {
-    if (!agent.name.startsWith(prefix)) {
-      agent.name = `${prefix}${agent.name}`;
+    let name = agent.name;
+
+    // Remove versoes antigas com o marcador no inicio (migracao anterior)
+    if (name.startsWith(prefix)) {
+      name = name.slice(prefix.length);
       changed = true;
     }
+
+    if (!name.endsWith(suffix)) {
+      name = `${name}${suffix}`;
+      changed = true;
+    }
+
+    agent.name = name;
   }
 
   if (changed) {
     await db.write();
-    console.log("Migracao: prefixo #consultivo adicionado ao nome dos agentes.");
+    console.log("Migracao: marcador #consultivo movido para o final do nome dos agentes.");
   }
 }
 
 await seedAgentsIfEmpty();
 await seedBundlesIfEmpty();
-await ensureConsultivoPrefix();
+await ensureConsultivoSuffix();
