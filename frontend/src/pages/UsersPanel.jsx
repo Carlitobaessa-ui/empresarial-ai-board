@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { api } from "../lib/api.js";
+
+const NAME_STORAGE_KEY = "board_admin_display_name";
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -21,7 +24,83 @@ function providerLabel(provider) {
   return "E-mail/senha";
 }
 
-function ConversationThread({ conversation }) {
+function roleLabel(m) {
+  if (m.role === "user") return "Usuário";
+  if (m.role === "consultant") return m.authorName ? `Consultor · ${m.authorName}` : "Consultor";
+  return "Agente";
+}
+
+function roleClasses(m) {
+  if (m.role === "user") return "bg-accent-dark/10 text-accent-dark";
+  if (m.role === "consultant") return "bg-accent-soft text-accent-dark";
+  return "bg-ink/10 text-ink-muted";
+}
+
+// Caixa para o consultor humano (admin) enviar uma mensagem dentro da
+// conversa do usuario com o agente. A mensagem entra no historico com o
+// nome de quem escreveu e o agente de IA passa a considera-la ao responder
+// as proximas mensagens do usuario.
+function ConsultReplyBox({ conversationId, authorName, onSent }) {
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSend() {
+    const content = text.trim();
+    if (!content || sending) return;
+    setSending(true);
+    setError("");
+    try {
+      await api.adminSendConsultMessage(
+        conversationId,
+        { content, authorName },
+        sessionStorage.getItem("board_admin_password") || ""
+      );
+      setText("");
+      onSent?.();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="pt-2 mt-2 hairline-t">
+      <div className="flex items-end gap-2">
+        <textarea
+          rows={2}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
+          placeholder={
+            authorName
+              ? `Responder como ${authorName}...`
+              : "Defina seu nome acima antes de responder..."
+          }
+          disabled={!authorName}
+          className="input flex-1 resize-none text-xs disabled:opacity-50"
+        />
+        <button
+          type="button"
+          onClick={handleSend}
+          disabled={sending || !text.trim() || !authorName}
+          className="shrink-0 bg-accent-dark text-cream text-xs font-medium px-3 py-2 rounded-lg disabled:opacity-30 transition"
+        >
+          {sending ? "Enviando..." : "Enviar"}
+        </button>
+      </div>
+      {error && <p className="text-[11px] text-red-700 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+function ConversationThread({ conversation, authorName, onSent }) {
   return (
     <div className="hairline rounded-lg p-3 bg-cream/60">
       <div className="flex items-center justify-between mb-2">
@@ -36,14 +115,8 @@ function ConversationThread({ conversation }) {
         <div className="space-y-2">
           {conversation.messages.map((m) => (
             <div key={m.id} className="text-xs">
-              <span
-                className={`inline-block px-1.5 py-0.5 rounded mr-2 ${
-                  m.role === "user"
-                    ? "bg-accent-dark/10 text-accent-dark"
-                    : "bg-ink/10 text-ink-muted"
-                }`}
-              >
-                {m.role === "user" ? "Usuário" : "Agente"}
+              <span className={`inline-block px-1.5 py-0.5 rounded mr-2 ${roleClasses(m)}`}>
+                {roleLabel(m)}
               </span>
               <span className="text-ink-muted">{formatDate(m.createdAt)}</span>
               <p className="text-ink whitespace-pre-wrap mt-0.5">{m.content}</p>
@@ -51,11 +124,12 @@ function ConversationThread({ conversation }) {
           ))}
         </div>
       )}
+      <ConsultReplyBox conversationId={conversation.id} authorName={authorName} onSent={onSent} />
     </div>
   );
 }
 
-function UserCard({ user }) {
+function UserCard({ user, authorName, onSent }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -91,7 +165,12 @@ function UserCard({ user }) {
             </p>
           ) : (
             user.conversations.map((c) => (
-              <ConversationThread key={c.id} conversation={c} />
+              <ConversationThread
+                key={c.id}
+                conversation={c}
+                authorName={authorName}
+                onSent={onSent}
+              />
             ))
           )}
         </div>
@@ -102,6 +181,14 @@ function UserCard({ user }) {
 
 export default function UsersPanel({ users, loading, onRefresh }) {
   const [query, setQuery] = useState("");
+  const [authorName, setAuthorName] = useState(
+    () => localStorage.getItem(NAME_STORAGE_KEY) || ""
+  );
+
+  function handleNameChange(value) {
+    setAuthorName(value);
+    localStorage.setItem(NAME_STORAGE_KEY, value);
+  }
 
   const filtered = users.filter((u) => {
     const q = query.trim().toLowerCase();
@@ -115,8 +202,8 @@ export default function UsersPanel({ users, loading, onRefresh }) {
         <div>
           <h1 className="font-serif text-xl text-ink">Usuários e conversas</h1>
           <p className="text-xs text-ink-muted mt-0.5">
-            Veja todas as pessoas cadastradas no app e o histórico de mensagens
-            trocadas com cada agente.
+            Veja o histórico de cada usuário e, se precisar, entre na conversa
+            como consultor para conduzir o andamento da interação.
           </p>
         </div>
         <button
@@ -128,12 +215,20 @@ export default function UsersPanel({ users, loading, onRefresh }) {
         </button>
       </div>
 
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Buscar por nome ou e-mail..."
-        className="input mb-4 max-w-sm"
-      />
+      <div className="flex flex-wrap gap-3 mb-4">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar por nome ou e-mail..."
+          className="input max-w-sm"
+        />
+        <input
+          value={authorName}
+          onChange={(e) => handleNameChange(e.target.value)}
+          placeholder="Seu nome (aparece nas respostas como consultor)"
+          className="input max-w-sm"
+        />
+      </div>
 
       {loading && users.length === 0 ? (
         <p className="text-sm text-ink-muted">Carregando usuários...</p>
@@ -142,7 +237,7 @@ export default function UsersPanel({ users, loading, onRefresh }) {
       ) : (
         <div className="space-y-2 max-w-3xl">
           {filtered.map((u) => (
-            <UserCard key={u.id} user={u} />
+            <UserCard key={u.id} user={u} authorName={authorName} onSent={onRefresh} />
           ))}
         </div>
       )}
