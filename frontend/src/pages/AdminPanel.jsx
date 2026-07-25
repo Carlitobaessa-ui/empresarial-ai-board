@@ -17,6 +17,10 @@ export default function AdminPanel() {
 
   const [agents, setAgents] = useState([]);
   const [bundles, setBundles] = useState([]);
+  // billingEnabled = true: usuarios precisam de assinatura ativa para conversar
+  // com um agente. false: todos os agentes ficam liberados (modo de testes).
+  const [billingEnabled, setBillingEnabled] = useState(true);
+  const [togglingBilling, setTogglingBilling] = useState(false);
 
   // selection: { kind: 'agent'|'bundle', item, isNew }
   const [selection, setSelection] = useState(null);
@@ -47,6 +51,31 @@ export default function AdminPanel() {
   function loadAll() {
     api.listAgents(true).then(setAgents);
     api.listBundles(true).then(setBundles);
+    api.getSettings().then((s) => setBillingEnabled(s.billingEnabled !== false));
+  }
+
+  async function handleToggleBilling() {
+    const next = !billingEnabled;
+    const aviso = next
+      ? "Reativar a cobranca? Os usuarios voltarao a precisar de assinatura ativa para conversar com os agentes."
+      : "Desativar a cobranca? Todos os agentes ficarao liberados para qualquer usuario logado (modo de testes).";
+    if (!window.confirm(aviso)) return;
+
+    setTogglingBilling(true);
+    setNotice("");
+    try {
+      const res = await api.setBilling(next, password);
+      setBillingEnabled(res.billingEnabled);
+      setNotice(
+        res.billingEnabled
+          ? "Cobranca reativada - assinatura obrigatoria."
+          : "Cobranca desativada - todos os agentes liberados."
+      );
+    } catch (err) {
+      setNotice(err.message);
+    } finally {
+      setTogglingBilling(false);
+    }
   }
 
   async function handleSaveAgent(form) {
@@ -220,6 +249,34 @@ export default function AdminPanel() {
               {!bundle.active && <span className="text-[10px] text-ink-muted ml-auto">inativo</span>}
             </button>
           ))}
+        </div>
+        <div className="px-4 py-3 hairline-t">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs uppercase tracking-wide text-ink-muted">Cobranca</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded ${
+                billingEnabled ? "bg-accent-dark/10 text-accent-dark" : "bg-ink/10 text-ink-muted"
+              }`}
+            >
+              {billingEnabled ? "ativa" : "desativada"}
+            </span>
+          </div>
+          <p className="text-[11px] leading-snug text-ink-muted mb-2">
+            {billingEnabled
+              ? "Usuarios precisam de assinatura ativa para conversar com os agentes."
+              : "Todos os agentes estao liberados para qualquer usuario logado (modo de testes)."}
+          </p>
+          <button
+            onClick={handleToggleBilling}
+            disabled={togglingBilling}
+            className="w-full hairline rounded-lg py-2 text-xs text-ink hover:bg-surface transition disabled:opacity-50"
+          >
+            {togglingBilling
+              ? "Salvando..."
+              : billingEnabled
+                ? "Desativar cobranca"
+                : "Reativar cobranca"}
+          </button>
         </div>
       </aside>
 
