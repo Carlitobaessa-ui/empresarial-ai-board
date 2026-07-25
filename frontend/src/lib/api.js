@@ -107,6 +107,10 @@ export const api = {
   checkout: (payload) => request(`/billing/checkout`, { method: "POST", body: JSON.stringify(payload) }),
   billingPortal: () => request(`/billing/portal`, { method: "POST" }),
 
+  // Usuarios e conversas (Painel Admin)
+  adminListUsers: (adminPassword) =>
+    request(`/admin/users`, { headers: { "x-admin-password": adminPassword } }),
+
   // Settings / admin
   getSettings: () => request(`/settings`),
   setBilling: (billingEnabled, adminPassword) =>
