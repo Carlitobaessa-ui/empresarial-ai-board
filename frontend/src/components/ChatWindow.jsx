@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import AgentIcon from "./AgentIcon.jsx";
 import Message from "./Message.jsx";
+import MessageComposer from "./MessageComposer.jsx";
 import { api } from "../lib/api.js";
 
 export default function ChatWindow({ agent, conversation, onConversationUpdate }) {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const bottomRef = useRef(null);
@@ -25,16 +25,14 @@ export default function ChatWindow({ agent, conversation, onConversationUpdate }
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
-  async function handleSend(e) {
-    e.preventDefault();
-    const text = input.trim();
-    if (!text || !conversation || sending) return;
+  async function handleSend({ text, attachments }) {
+    if (!conversation || sending) return;
+    if (!text && (!attachments || attachments.length === 0)) return;
 
     setError("");
-    setInput("");
     setMessages((prev) => [
       ...prev,
-      { id: `temp-${Date.now()}`, role: "user", content: text },
+      { id: `temp-${Date.now()}`, role: "user", content: text, attachments },
     ]);
     setSending(true);
 
@@ -42,6 +40,7 @@ export default function ChatWindow({ agent, conversation, onConversationUpdate }
       const { assistantMessage } = await api.sendMessage({
         conversationId: conversation.id,
         message: text,
+        attachments,
       });
       setMessages((prev) => [...prev, assistantMessage]);
       onConversationUpdate?.();
@@ -106,30 +105,14 @@ export default function ChatWindow({ agent, conversation, onConversationUpdate }
         <div className="px-6 pb-2 text-xs text-red-700">{error}</div>
       )}
 
-      <form onSubmit={handleSend} className="hairline-t p-4">
-        <div className="flex items-end gap-2 bg-surface hairline rounded-xl2 px-3 py-2">
-          <textarea
-            rows={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend(e);
-              }
-            }}
-            placeholder={`Escreva para ${agent.name}...`}
-            className="flex-1 resize-none bg-transparent outline-none text-sm text-ink placeholder:text-ink-muted/70 max-h-32 py-1.5"
-          />
-          <button
-            type="submit"
-            disabled={sending || !input.trim()}
-            className="shrink-0 bg-ink text-cream text-xs font-medium px-4 py-2 rounded-lg disabled:opacity-30 transition"
-          >
-            Enviar
-          </button>
-        </div>
-      </form>
+      <div className="hairline-t p-4">
+        <MessageComposer
+          onSend={handleSend}
+          sending={sending}
+          disabled={!conversation}
+          placeholder={`Escreva para ${agent.name}...`}
+        />
+      </div>
     </div>
   );
 }
