@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../lib/api.js";
+import MessageComposer from "../components/MessageComposer.jsx";
 
 const NAME_STORAGE_KEY = "board_admin_display_name";
 
@@ -41,14 +42,12 @@ function roleClasses(m) {
 // nome de quem escreveu e o agente de IA passa a considera-la ao responder
 // as proximas mensagens do usuario.
 function ConsultReplyBox({ conversationId, authorName, onSent }) {
-  const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSend() {
+  async function handleSend({ text, attachments }) {
     if (sending) return;
-    const content = text.trim();
-    if (!content) {
+    if (!text && (!attachments || attachments.length === 0)) {
       setError("Digite uma mensagem antes de enviar.");
       return;
     }
@@ -58,10 +57,9 @@ function ConsultReplyBox({ conversationId, authorName, onSent }) {
       const adminPassword = sessionStorage.getItem("board_admin_password") || "";
       await api.adminSendConsultMessage(
         conversationId,
-        { content, authorName },
+        { content: text, authorName, attachments },
         adminPassword
       );
-      setText("");
       onSent?.();
     } catch (err) {
       setError(err.message || "Falha ao enviar. Tente novamente.");
@@ -72,37 +70,18 @@ function ConsultReplyBox({ conversationId, authorName, onSent }) {
 
   return (
     <div className="pt-2 mt-2 hairline-t">
-      <div className="flex items-end gap-2">
-        <textarea
-          rows={2}
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            if (error) setError("");
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSend();
-            }
-          }}
-          placeholder={
-            authorName
-              ? `Responder como ${authorName}...`
-              : "Defina seu nome acima antes de responder..."
-          }
-          disabled={!authorName}
-          className="input flex-1 resize-none text-xs disabled:opacity-50"
-        />
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={sending || !text.trim() || !authorName}
-          className="shrink-0 bg-accent-dark text-cream text-xs font-medium px-3 py-2 rounded-lg disabled:opacity-30 transition"
-        >
-          {sending ? "Enviando..." : "Enviar"}
-        </button>
-      </div>
+      <MessageComposer
+        onSend={handleSend}
+        sending={sending}
+        disabled={!authorName}
+        placeholder={
+          authorName
+            ? `Responder como ${authorName}...`
+            : "Defina seu nome acima antes de responder..."
+        }
+        rows={2}
+        compact
+      />
       {error && <p className="text-[11px] text-red-700 mt-1">{error}</p>}
     </div>
   );
@@ -128,6 +107,15 @@ function ConversationThread({ conversation, authorName, onSent }) {
               </span>
               <span className="text-ink-muted">{formatDate(m.createdAt)}</span>
               <p className="text-ink whitespace-pre-wrap mt-0.5">{m.content}</p>
+              {m.attachments && m.attachments.length > 0 && (
+                <ul className="mt-1 space-y-0.5">
+                  {m.attachments.map((a) => (
+                    <li key={a.id} className="text-[11px] text-ink-muted">
+                      {a.type === "audio" ? "🎤" : "📎"} {a.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </div>
