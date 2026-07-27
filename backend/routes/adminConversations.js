@@ -2,6 +2,7 @@ import { Router } from "express";
 import { nanoid } from "nanoid";
 import { db } from "../db.js";
 import { requireAdmin } from "../middleware/auth.js";
+import { sanitizeAttachments } from "../services/attachments.js";
 
 const router = Router();
 
@@ -11,10 +12,20 @@ const router = Router();
 // "consultant" e o nome de quem escreveu (authorName), aparece no chat do
 // usuario com esse nome, e entra no historico que o agente de IA usa para
 // responder as PROXIMAS mensagens - ou seja, a IA continua respondendo
-// normalmente depois, ja considerando o que o consultor disse.
+// normalmente depois, ja considerando o que o consultor disse. Assim como no
+// chat do usuario, o consultor tambem pode anexar um arquivo ou audio.
 router.post("/:id/messages", requireAdmin, async (req, res) => {
-  const { content, authorName } = req.body || {};
-  if (!content || !content.trim()) {
+  const { content, authorName, attachments: rawAttachments } = req.body || {};
+  const text = typeof content === "string" ? content.trim() : "";
+
+  let attachments;
+  try {
+    attachments = sanitizeAttachments(rawAttachments);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+
+  if (!text && attachments.length === 0) {
     return res.status(400).json({ error: "A mensagem nao pode ficar vazia." });
   }
 
@@ -27,7 +38,8 @@ router.post("/:id/messages", requireAdmin, async (req, res) => {
     conversationId: conversation.id,
     role: "consultant",
     authorName: (authorName || "Consultor").trim(),
-    content: content.trim(),
+    content: text,
+    attachments: attachments.map((a) => ({ ...a, id: a.id || nanoid() })),
     createdAt: now,
   };
 
