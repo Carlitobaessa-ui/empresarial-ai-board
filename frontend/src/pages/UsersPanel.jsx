@@ -64,11 +64,7 @@ function ConsultReplyBox({ conversationId, authorName, onSent }) {
       setText("");
       onSent?.();
     } catch (err) {
-      const status = err.status ? ` [HTTP ${err.status}]` : "";
-      const preview = content.length > 40 ? `${content.slice(0, 40)}...` : content;
-      setError(
-        `${err.message || "Falha ao enviar."}${status} (enviado: "${preview}", ${content.length} caracteres)`
-      );
+      setError(err.message || "Falha ao enviar. Tente novamente.");
     } finally {
       setSending(false);
     }
