@@ -4,6 +4,7 @@ import { db } from "../db.js";
 import { askAgent, isConfigured } from "../services/anthropic.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { hasAccessToAgent } from "../services/access.js";
+import { sanitizeAttachments } from "../services/attachments.js";
 
 const router = Router();
 
@@ -12,10 +13,22 @@ router.get("/status", (_req, res) => {
 });
 
 // Envia uma mensagem do usuario para o agente e retorna a resposta da IA.
+// A mensagem pode conter apenas texto, apenas anexos (arquivo/audio), ou os dois.
 router.post("/", requireAuth, async (req, res) => {
-  const { conversationId, message } = req.body || {};
-  if (!conversationId || !message) {
-    return res.status(400).json({ error: "conversationId e message sao obrigatorios." });
+  const { conversationId, message, attachments: rawAttachments } = req.body || {};
+  const text = typeof message === "string" ? message.trim() : "";
+
+  let attachments;
+  try {
+    attachments = sanitizeAttachments(rawAttachments);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+
+  if (!conversationId || (!text && attachments.length === 0)) {
+    return res.status(400).json({
+      error: "conversationId e message (ou ao menos um anexo) sao obrigatorios.",
+    });
   }
 
   const conversation = db.data.conversations.find(
@@ -40,7 +53,8 @@ router.post("/", requireAuth, async (req, res) => {
     id: nanoid(),
     conversationId,
     role: "user",
-    content: message,
+    content: text,
+    attachments: attachments.map((a) => ({ ...a, id: a.id || nanoid() })),
     createdAt: now,
   };
   db.data.messages.push(userMessage);
@@ -58,6 +72,7 @@ router.post("/", requireAuth, async (req, res) => {
         m.role === "consultant"
           ? `[Observacao enviada por um consultor humano, ${m.authorName || "Consultor"}, que acompanha esta conversa]: ${m.content}`
           : m.content,
+      attachments: m.attachments || [],
     }));
 
   try {
