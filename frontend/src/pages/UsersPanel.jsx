@@ -46,20 +46,25 @@ function ConsultReplyBox({ conversationId, authorName, onSent }) {
   const [error, setError] = useState("");
 
   async function handleSend() {
+    if (sending) return;
     const content = text.trim();
-    if (!content || sending) return;
+    if (!content) {
+      setError("Digite uma mensagem antes de enviar.");
+      return;
+    }
     setSending(true);
     setError("");
     try {
+      const adminPassword = sessionStorage.getItem("board_admin_password") || "";
       await api.adminSendConsultMessage(
         conversationId,
         { content, authorName },
-        sessionStorage.getItem("board_admin_password") || ""
+        adminPassword
       );
       setText("");
       onSent?.();
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Falha ao enviar. Tente novamente.");
     } finally {
       setSending(false);
     }
@@ -71,7 +76,10 @@ function ConsultReplyBox({ conversationId, authorName, onSent }) {
         <textarea
           rows={2}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            if (error) setError("");
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -235,7 +243,7 @@ export default function UsersPanel({ users, loading, onRefresh }) {
       ) : filtered.length === 0 ? (
         <p className="text-sm text-ink-muted">Nenhum usuário encontrado.</p>
       ) : (
-        <div className="space-y-2 max-w-3xl">
+        <div className="space-y-2 max-w3xl">
           {filtered.map((u) => (
             <UserCard key={u.id} user={u} authorName={authorName} onSent={onRefresh} />
           ))}
