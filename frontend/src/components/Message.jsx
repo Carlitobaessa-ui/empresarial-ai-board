@@ -1,5 +1,46 @@
 import AgentIcon from "./AgentIcon.jsx";
 
+// Renderiza os anexos (arquivo ou audio) de uma mensagem. Imagens em formato
+// suportado aparecem como preview; audio como player; qualquer outro arquivo
+// vira um link de download.
+function Attachments({ attachments }) {
+  if (!attachments || attachments.length === 0) return null;
+
+  return (
+    <div className="mt-2 space-y-1.5">
+      {attachments.map((a) => {
+        const isImage = a.type === "file" && /^image\//.test(a.mimeType || "");
+
+        if (isImage && a.dataUrl) {
+          return (
+            <img
+              key={a.id}
+              src={a.dataUrl}
+              alt={a.name || "imagem anexada"}
+              className="max-w-[220px] max-h-[220px] rounded-lg hairline object-cover"
+            />
+          );
+        }
+
+        if (a.type === "audio" && a.dataUrl) {
+          return <audio key={a.id} controls src={a.dataUrl} className="max-w-[240px] h-9" />;
+        }
+
+        return (
+          <a
+            key={a.id}
+            href={a.dataUrl}
+            download={a.name}
+            className="flex items-center gap-1.5 text-[12px] underline underline-offset-2 opacity-90 hover:opacity-100"
+          >
+            📎 {a.name}
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function Message({ message, agent }) {
   const isUser = message.role === "user";
   const isConsultant = message.role === "consultant";
@@ -9,6 +50,7 @@ export default function Message({ message, agent }) {
       <div className="flex justify-end">
         <div className="max-w-[75%] bg-ink text-cream rounded-xl2 rounded-tr-sm px-4 py-2.5 text-[14px] leading-relaxed whitespace-pre-wrap">
           {message.content}
+          <Attachments attachments={message.attachments} />
         </div>
       </div>
     );
@@ -29,6 +71,7 @@ export default function Message({ message, agent }) {
           </p>
           <div className="bg-accent-soft/50 border border-accent-dark/25 rounded-xl2 rounded-tl-sm px-4 py-2.5 text-[14px] leading-relaxed whitespace-pre-wrap text-ink">
             {message.content}
+            <Attachments attachments={message.attachments} />
           </div>
         </div>
       </div>
@@ -45,6 +88,7 @@ export default function Message({ message, agent }) {
       </div>
       <div className="max-w-[75%] bg-surface hairline rounded-xl2 rounded-tl-sm px-4 py-2.5 text-[14px] leading-relaxed whitespace-pre-wrap text-ink">
         {message.content}
+        <Attachments attachments={message.attachments} />
       </div>
     </div>
   );
