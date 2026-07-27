@@ -1,9 +1,11 @@
-import { JSONFilePreset } from "lowdb/node";
+import { Low } from "lowdb";
+import { JSONFile } from "lowdb/node";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { nanoid } from "nanoid";
 import agentsSeed from "./data/agentsSeed.js";
 import bundlesSeed from "./data/bundlesSeed.js";
+import { PostgresJSONAdapter } from "./pgStore.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dbPath = path.join(__dirname, "board.json");
@@ -17,10 +19,35 @@ const defaultData = {
   subscriptions: [],
 };
 
-// Banco simples em arquivo JSON - sem dependencias nativas, funciona em
-// qualquer sistema operacional apenas com `npm install`. Suficiente para o
-// volume de dados de um app interno de agentes especialistas.
-export const db = await JSONFilePreset(dbPath, defaultData);
+// Em producao (Render), o filesystem local e efemero - qualquer alteracao
+// feita pelo Painel Admin (editar agente, novo usuario, nova conversa) some
+// no proximo restart/redeploy/spin-down do servico. Por isso, quando existe
+// uma DATABASE_URL configurada (Postgres gerenciado - Neon, Supabase, Render
+// Postgres etc.), os dados sao gravados la em vez de em um arquivo local.
+// Sem DATABASE_URL (ex.: rodando localmente na sua maquina), continua
+// usando o arquivo JSON simples, sem precisar de Postgres instalado.
+export const usingPostgres = Boolean(process.env.DATABASE_URL);
+
+const adapter = usingPostgres
+  ? new PostgresJSONAdapter(process.env.DATABASE_URL)
+  : new JSONFile(dbPath);
+
+// Banco simples (documento unico) - sem dependencias nativas quando local,
+// funciona em qualquer sistema operacional apenas com `npm install`.
+// Suficiente para o volume de dados de um app interno de agentes
+// especialistas.
+export const db = new Low(adapter, defaultData);
+await db.read();
+if (db.data === null) {
+  db.data = defaultData;
+  await db.write();
+}
+
+console.log(
+  usingPostgres
+    ? "Banco de dados: Postgres (persistente)."
+    : "Banco de dados: arquivo JSON local (backend/db.json) - dados NAO sobrevivem a redeploys em hosts com filesystem efemero."
+);
 
 // Garante que colecoes novas existam em bancos criados por uma versao anterior do app
 for (const key of Object.keys(defaultData)) {
