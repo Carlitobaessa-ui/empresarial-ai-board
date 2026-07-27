@@ -1,4 +1,5 @@
 import AgentIcon from "./AgentIcon.jsx";
+import { AttachIcon } from "./MessageComposer.jsx";
 
 // Renderiza os anexos (arquivo ou audio) de uma mensagem. Imagens em formato
 // suportado aparecem como preview; audio como player; qualquer outro arquivo
@@ -33,7 +34,7 @@ function Attachments({ attachments }) {
             download={a.name}
             className="flex items-center gap-1.5 text-[12px] underline underline-offset-2 opacity-90 hover:opacity-100"
           >
-            📎 {a.name}
+            <AttachIcon className="w-3.5 h-3.5" /> {a.name}
           </a>
         );
       })}
