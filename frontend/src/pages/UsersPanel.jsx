@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { api } from "../lib/api.js";
-import MessageComposer from "../components/MessageComposer.jsx";
+import MessageComposer, { AttachIcon, MicIcon } from "../components/MessageComposer.jsx";
 
 const NAME_STORAGE_KEY = "board_admin_display_name";
 
@@ -110,8 +110,9 @@ function ConversationThread({ conversation, authorName, onSent }) {
               {m.attachments && m.attachments.length > 0 && (
                 <ul className="mt-1 space-y-0.5">
                   {m.attachments.map((a) => (
-                    <li key={a.id} className="text-[11px] text-ink-muted">
-                      {a.type === "audio" ? "🎤" : "📎"} {a.name}
+                    <li key={a.id} className="text-[11px] text-ink-muted flex items-center gap-1">
+                      {a.type === "audio" ? <MicIcon className="w-3 h-3" /> : <AttachIcon className="w-3 h-3" />}
+                      {a.name}
                     </li>
                   ))}
                 </ul>
