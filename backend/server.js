@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import "./db.js"; // garante que o banco e o seed rodem na subida do servidor
+import { usingPostgres } from "./db.js"; // garante que o banco e o seed rodem na subida do servidor
 
 import agentsRouter from "./routes/agents.js";
 import bundlesRouter from "./routes/bundles.js";
@@ -42,7 +42,11 @@ code{background:#f2efe9;padding:.15rem .4rem;border-radius:4px}a{color:#b8551f}<
 </body></html>`);
 });
 
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+// "storage" ajuda a confirmar de fora (sem expor segredos) se o backend esta
+// gravando em Postgres persistente ou no arquivo local efemero.
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, storage: usingPostgres ? "postgres" : "file" })
+);
 
 app.use("/api/agents", agentsRouter);
 app.use("/api/bundles", bundlesRouter);
