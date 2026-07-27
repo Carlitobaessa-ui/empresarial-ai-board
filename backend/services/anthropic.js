@@ -59,6 +59,54 @@ Instrucoes gerais:
   adequado ao tema.`;
 }
 
+// Formatos de imagem que a API da Anthropic aceita como bloco "image".
+const SUPPORTED_IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
+
+function extractBase64(dataUrl) {
+  const idx = dataUrl.indexOf("base64,");
+  return idx === -1 ? dataUrl : dataUrl.slice(idx + "base64,".length);
+}
+
+// Monta o "content" de uma mensagem para a API da Anthropic. Se a mensagem
+// nao tiver anexos, e so o texto (formato mais simples/compativel). Se tiver
+// anexos de imagem em formato suportado, eles viram blocos "image" que o
+// Claude enxerga de verdade (visao multimodal). Outros anexos (audio, pdf,
+// etc.) viram uma nota textual, ja que o modelo nao consegue "ouvir" ou abrir
+// esses arquivos diretamente.
+function buildMessageContent(m) {
+  const attachments = Array.isArray(m.attachments) ? m.attachments : [];
+  if (attachments.length === 0) {
+    return m.content || "";
+  }
+
+  const imageBlocks = [];
+  const notes = [];
+  if (m.content) notes.push(m.content);
+
+  for (const att of attachments) {
+    const isSupportedImage = att.type === "file" && SUPPORTED_IMAGE_MIME.has(att.mimeType);
+    if (isSupportedImage) {
+      imageBlocks.push({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: att.mimeType,
+          data: extractBase64(att.dataUrl),
+        },
+      });
+    } else {
+      const kb = att.size ? ` (${Math.round(att.size / 1024)}KB)` : "";
+      const kind = att.type === "audio" ? "audio" : "arquivo";
+      notes.push(`[Anexo enviado pelo usuario - ${kind}: ${att.name || "sem nome"}${kb}. O conteudo deste anexo nao pode ser lido diretamente, apenas o nome/tipo.]`);
+    }
+  }
+
+  const blocks = [...imageBlocks];
+  if (notes.length > 0) blocks.push({ type: "text", text: notes.join("\n") });
+  if (blocks.length === 0) blocks.push({ type: "text", text: "(mensagem vazia)" });
+  return blocks;
+}
+
 // Chama a API da Anthropic com o historico da conversa e retorna o texto da resposta.
 export async function askAgent({ agent, history }) {
   const anthropic = getClient();
@@ -73,7 +121,7 @@ export async function askAgent({ agent, history }) {
 
   const messages = history.map((m) => ({
     role: m.role === "assistant" ? "assistant" : "user",
-    content: m.content,
+    content: buildMessageContent(m),
   }));
 
   const response = await anthropic.messages.create({
