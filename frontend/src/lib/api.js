@@ -16,13 +16,18 @@ export function setToken(token) {
 
 async function request(path, options = {}) {
   const token = getToken();
+  // IMPORTANTE: "headers" precisa vir DEPOIS do spread de options. Se vier
+  // antes, um options.headers (ex.: x-admin-password) sobrescreve o objeto
+  // inteiro e o Content-Type se perde - o Express deixa de fazer o parse do
+  // corpo e a requisicao chega vazia no backend.
+  const { headers: extraHeaders, ...rest } = options;
   const res = await fetch(`${BASE}${path}`, {
+    ...rest,
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
+      ...(extraHeaders || {}),
     },
-    ...options,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
