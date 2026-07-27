@@ -20,7 +20,10 @@ app.use(cors());
 // por isso essa rota e registrada ANTES do express.json() global.
 app.post("/api/billing/webhook", rawBodyParser, stripeWebhookHandler);
 
-app.use(express.json({ limit: "2mb" }));
+// Limite maior para acomodar anexos (arquivo/audio) enviados como base64
+// dentro do corpo JSON - base64 infla o tamanho original em ~33%, e
+// permitimos ate 5 anexos de 8MB por mensagem (ver services/attachments.js).
+app.use(express.json({ limit: "45mb" }));
 
 // Pagina inicial da API: o backend nao serve HTML do app (isso e o GitHub
 // Pages). Sem esta rota, abrir a raiz no navegador mostraria "Cannot GET /".
