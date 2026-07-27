@@ -64,7 +64,11 @@ function ConsultReplyBox({ conversationId, authorName, onSent }) {
       setText("");
       onSent?.();
     } catch (err) {
-      setError(err.message || "Falha ao enviar. Tente novamente.");
+      const status = err.status ? ` [HTTP ${err.status}]` : "";
+      const preview = content.length > 40 ? `${content.slice(0, 40)}...` : content;
+      setError(
+        `${err.message || "Falha ao enviar."}${status} (enviado: "${preview}", ${content.length} caracteres)`
+      );
     } finally {
       setSending(false);
     }
@@ -217,7 +221,7 @@ export default function UsersPanel({ users, loading, onRefresh }) {
         <button
           onClick={onRefresh}
           disabled={loading}
-          className="hairline rounded-lg px-3 py-1.5 text-xs text-ink hover:bg-surface transition disabled:opacity-50 shrink-0"
+          className="hairline rounded-lg px-3 py-1.5 text-xs text-ink hover:bg-surface transition disabled:opacity-50"
         >
           {loading ? "Atualizando..." : "Atualizar"}
         </button>
