@@ -6,6 +6,61 @@ import { useEffect, useRef, useState } from "react";
 const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024; // 8MB
 const MAX_ATTACHMENTS = 5;
 
+// Icones de linha fina no mesmo estilo do AgentIcon.jsx (viewBox 0 0 24 24,
+// stroke=currentColor, traco fino e sofisticado) usados nos controles de
+// anexo/gravacao da caixa de mensagem, no lugar dos emojis anteriores.
+export function AttachIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20.1 11.1 L11.4 19.8 a4.7 4.7 0 0 1-6.6-6.6 l8.6-8.6 a3.2 3.2 0 0 1 4.5 4.5 l-8.4 8.4 a1.7 1.7 0 0 1-2.4-2.4 l7.7-7.7" />
+    </svg>
+  );
+}
+
+export function MicIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="9.4" y="3.3" width="5.2" height="9.4" rx="2.6" />
+      <path d="M6.2 11.2 v1.2 a5.8 5.8 0 0 0 11.6 0 v-1.2" />
+      <line x1="12" y1="17.9" x2="12" y2="21" />
+      <line x1="9" y1="21" x2="15" y2="21" />
+    </svg>
+  );
+}
+
+function StopIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="8.4" />
+      <rect x="9.3" y="9.3" width="5.4" height="5.4" rx="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 function formatSize(bytes) {
   if (!bytes) return "";
   const kb = bytes / 1024;
@@ -190,7 +245,7 @@ export default function MessageComposer({
               key={a.id}
               className="flex items-center gap-1.5 hairline rounded-lg bg-cream/70 px-2 py-1 text-[11px] text-ink-muted"
             >
-              <span>{a.type === "audio" ? "🎤" : "📎"}</span>
+              {a.type === "audio" ? <MicIcon className="w-3 h-3" /> : <AttachIcon className="w-3 h-3" />}
               <span className="max-w-[140px] truncate">{a.name}</span>
               <span className="text-ink-muted/60">{formatSize(a.size)}</span>
               <button
@@ -222,9 +277,9 @@ export default function MessageComposer({
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || sending}
           title="Anexar arquivo"
-          className="shrink-0 text-ink-muted hover:text-ink disabled:opacity-30 transition px-1 py-1.5 text-base leading-none"
+          className="shrink-0 text-ink-muted hover:text-ink disabled:opacity-30 transition px-1 py-1.5 leading-none"
         >
-          📎
+          <AttachIcon />
         </button>
 
         <button
@@ -232,11 +287,11 @@ export default function MessageComposer({
           onClick={toggleRecording}
           disabled={disabled || sending}
           title={recording ? "Parar gravação" : "Gravar áudio"}
-          className={`shrink-0 px-1 py-1.5 text-base leading-none transition disabled:opacity-30 ${
+          className={`shrink-0 px-1 py-1.5 leading-none transition disabled:opacity-30 ${
             recording ? "text-red-600" : "text-ink-muted hover:text-ink"
           }`}
         >
-          {recording ? "⏹" : "🎤"}
+          {recording ? <StopIcon /> : <MicIcon />}
         </button>
 
         <textarea
