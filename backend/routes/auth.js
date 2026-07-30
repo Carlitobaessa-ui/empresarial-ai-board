@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { db } from "../db.js";
 import { hashPassword, verifyPassword, signToken, toSafeUser } from "../services/auth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
+import { authLimiter } from "../middleware/rateLimit.js";
 import {
   verifyGoogleIdToken,
   verifyAppleIdToken,
@@ -48,7 +49,7 @@ async function loginOrCreateSocialUser({ email, name, provider, providerId }) {
   return user;
 }
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", authLimiter, async (req, res) => {
   const { name, email, password } = req.body || {};
 
   if (!name || !isValidEmail(email) || !password || password.length < 6) {
@@ -81,7 +82,7 @@ router.post("/signup", async (req, res) => {
   res.status(201).json({ token, user: toSafeUser(user) });
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   const { email, password } = req.body || {};
   const normalizedEmail = (email || "").trim().toLowerCase();
 
