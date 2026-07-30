@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { usingPostgres } from "./db.js"; // garante que o banco e o seed rodem na subida do servidor
 
 import agentsRouter from "./routes/agents.js";
@@ -14,7 +15,28 @@ import adminConversationsRouter from "./routes/adminConversations.js";
 import billingRouter, { stripeWebhookHandler, rawBodyParser } from "./routes/billing.js";
 
 const app = express();
-app.use(cors());
+
+// Necessario atras do proxy reverso do Render para que req.ip reflita o IP
+// real do cliente (usado pelo rate limiting por IP nas rotas de auth/admin).
+app.set("trust proxy", 1);
+
+// Cabecalhos de seguranca HTTP (HSTS, X-Content-Type-Options, X-Frame-Options
+// etc.). CSP fica desativado pois a rota "/" abaixo serve HTML com <style> inline.
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// Restringe CORS ao dominio do app (GitHub Pages) + localhost em dev, em vez
+// de aceitar requisicoes de qualquer origem. Defina APP_URL no Render se o
+// dominio do frontend mudar.
+const allowedOrigins = [
+  process.env.APP_URL,
+  "https://carlitobaessa-ui.github.io",
+  "http://localhost:5173",
+].filter(Boolean);
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
 
 // O webhook do Stripe precisa do corpo "cru" (raw) para validar a assinatura,
 // por isso essa rota e registrada ANTES do express.json() global.
