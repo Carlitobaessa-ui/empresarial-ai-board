@@ -1,4 +1,4 @@
-# Conselho de Agentes Especialistas
+# Advisory & Governança
 
 Protótipo funcional (backend + frontend) de um "conselho executivo" de agentes
 de IA — Conselho, CEO, CIO, CFO e Processos de Negócio — pensado para

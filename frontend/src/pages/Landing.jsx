@@ -15,7 +15,7 @@ export default function Landing() {
     <div className="min-h-full bg-cream">
       <header className="max-w-5xl mx-auto px-6 pt-16 pb-8 text-center">
         <p className="text-xs uppercase tracking-[0.2em] text-accent-dark mb-4">
-          appagente #consultivo
+          Advisory & Governança
         </p>
         <h1 className="font-serif text-4xl md:text-5xl text-ink leading-tight">
           Um conselho executivo de IA,

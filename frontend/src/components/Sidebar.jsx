@@ -24,7 +24,7 @@ export default function Sidebar({
     <aside className="w-72 shrink-0 hairline-b lg:hairline-b-0 lg:border-r border-line flex flex-col h-full bg-cream">
       <div className="px-5 py-4 hairline-b flex items-center justify-between">
         <Link to="/" className="font-serif text-[15px] text-ink">
-          appagente #consultivo
+          Advisory & Governança
         </Link>
         <Link
           to="/admin"
