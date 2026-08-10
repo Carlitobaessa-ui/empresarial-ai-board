@@ -2,7 +2,40 @@ import { useEffect, useState } from "react";
 import AgentIcon from "../components/AgentIcon.jsx";
 import { api } from "../lib/api.js";
 
-const ICONS = ["board", "ceo", "cio", "cfo", "processos"];
+const ICONS = [
+  "board", "ceo", "cio", "cfo", "processos",
+  "marketing", "vendas", "juridico", "rh", "seguranca",
+  "esg", "logistica", "agro", "ecommerce", "atendimento",
+  "inovacao", "dados", "produto", "auditoria", "governanca",
+  "financas", "saude", "engenharia", "design",
+];
+
+const ICON_LABELS = {
+  board: "Conselho",
+  ceo: "Direção executiva",
+  cio: "Tecnologia",
+  cfo: "Finanças corporativas",
+  processos: "Processos",
+  marketing: "Marketing",
+  vendas: "Vendas / comercial",
+  juridico: "Jurídico",
+  rh: "RH / pessoas",
+  seguranca: "Segurança da informação",
+  esg: "ESG / sustentabilidade",
+  logistica: "Logística",
+  agro: "Agronomia / agro",
+  ecommerce: "E-commerce",
+  atendimento: "Atendimento / CX",
+  inovacao: "Inovação / P&D",
+  dados: "Dados / analytics",
+  produto: "Produto",
+  auditoria: "Auditoria / compliance",
+  governanca: "Governança",
+  financas: "Finanças pessoais",
+  saude: "Saúde / veterinária",
+  engenharia: "Engenharia / construção",
+  design: "Design / criativo",
+};
 
 const FIELD_HELP = {
   frameworks: "Metodologias e frameworks de mercado que este agente deve usar como referencia (um por linha).",
@@ -120,13 +153,14 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
             />
           </Field>
           <Field label="Icone">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 max-w-md">
               {ICONS.map((icon) => (
                 <button
                   type="button"
                   key={icon}
+                  title={ICON_LABELS[icon] || icon}
                   onClick={() => update("icon", icon)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center hairline transition ${
+                  className={`w-9 h-9 rounded-full flex items-center justify-center hairline transition hover:bg-accent-soft/30 ${
                     form.icon === icon ? "ring-1 ring-accent" : ""
                   }`}
                   style={{ color: form.color }}
@@ -135,6 +169,9 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
                 </button>
               ))}
             </div>
+            <p className="text-[11px] text-ink-muted mt-1.5">
+              {ICON_LABELS[form.icon] || form.icon}
+            </p>
           </Field>
           <Field label="Cor de identidade">
             <input

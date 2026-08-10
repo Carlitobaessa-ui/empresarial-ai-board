@@ -4,11 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: "#F5F3EC",
-        surface: "#FCFBF7",
-        ink: "#2B2823",
+        // Paleta alinhada ao design do Claude AI: creme quente de fundo,
+        // superficie branca para elevacao sutil de cards, tinta neutra
+        // quente para texto, e o terracota da marca como acento.
+        cream: "#FAF9F5",
+        surface: "#FFFFFF",
+        ink: "#262624",
         "ink-muted": "#6B665D",
-        line: "rgba(30, 27, 23, 0.10)",
+        line: "rgba(38, 38, 36, 0.10)",
         accent: {
           DEFAULT: "#D97757",
           dark: "#BC5F42",

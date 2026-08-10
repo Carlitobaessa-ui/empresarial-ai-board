@@ -29,7 +29,7 @@ function wrapLabel(name, maxCharsPerLine = 13) {
 export default function BoardDiagram({ agents = [] }) {
   const radius = 145;
   const center = { x: 210, y: 175 };
-  const nodes = agents.slice(0, 6);
+  const nodes = agents.slice(0, 8);
   const angleStep = (2 * Math.PI) / Math.max(nodes.length, 1);
 
   return (
@@ -39,25 +39,51 @@ export default function BoardDiagram({ agents = [] }) {
       style={{ overflow: "visible" }}
       aria-hidden="true"
     >
+      {/* Anel orbital externo - sugere um sistema/instrumento, nao so um grafico */}
+      <circle
+        cx={center.x}
+        cy={center.y}
+        r={radius + 40}
+        fill="none"
+        stroke="rgba(38,38,36,0.08)"
+        strokeWidth="1"
+        strokeDasharray="1.5 7"
+      />
+      <circle
+        cx={center.x}
+        cy={center.y}
+        r={radius}
+        fill="none"
+        stroke="rgba(38,38,36,0.06)"
+        strokeWidth="1"
+      />
+
       {nodes.map((agent, i) => {
         const angle = -Math.PI / 2 + i * angleStep;
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
+        // Ponto de sinal a meio caminho da linha - reforca a leitura de
+        // "conexao ativa" entre o centro e cada agente especialista.
+        const midX = center.x + radius * 0.56 * Math.cos(angle);
+        const midY = center.y + radius * 0.56 * Math.sin(angle);
         return (
-          <line
-            key={`line-${agent.id || i}`}
-            x1={center.x}
-            y1={center.y}
-            x2={x}
-            y2={y}
-            stroke="rgba(30,27,23,0.16)"
-            strokeWidth="1"
-          />
+          <g key={`line-${agent.id || i}`}>
+            <line
+              x1={center.x}
+              y1={center.y}
+              x2={x}
+              y2={y}
+              stroke="rgba(38,38,36,0.14)"
+              strokeWidth="1"
+            />
+            <circle cx={midX} cy={midY} r="1.6" fill={agent.color || "#D97757"} />
+          </g>
         );
       })}
 
       {/* Centro: "voce" / conselho */}
-      <circle cx={center.x} cy={center.y} r="34" fill="#FCFBF7" stroke="#2B2823" strokeWidth="1" />
+      <circle cx={center.x} cy={center.y} r="34" fill="#FFFFFF" stroke="#262624" strokeWidth="1" />
+      <circle cx={center.x} cy={center.y} r="29.5" fill="none" stroke="rgba(38,38,36,0.10)" strokeWidth="1" />
       <foreignObject x={center.x - 16} y={center.y - 16} width="32" height="32">
         <div className="w-8 h-8 flex items-center justify-center text-ink">
           <AgentIcon icon="board" className="w-6 h-6" strokeWidth={1.2} />
@@ -75,7 +101,7 @@ export default function BoardDiagram({ agents = [] }) {
               cx={x}
               cy={y}
               r="26"
-              fill="#FCFBF7"
+              fill="#FFFFFF"
               stroke={agent.color || "#D97757"}
               strokeWidth="1.2"
             />

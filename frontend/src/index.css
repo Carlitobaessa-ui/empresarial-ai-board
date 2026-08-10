@@ -7,19 +7,19 @@ html, body, #root {
 }
 
 body {
-  background-color: #F5F3EC;
-  color: #2B2823;
+  background-color: #FAF9F5;
+  color: #262624;
 }
 
 /* Campo de formulario padrao usado no Painel Admin */
 .input {
   width: 100%;
-  background: #FCFBF7;
-  border: 1px solid rgba(30, 27, 23, 0.14);
+  background: #FFFFFF;
+  border: 1px solid rgba(38, 38, 36, 0.14);
   border-radius: 10px;
   padding: 11px 14px;
   font-size: 14px;
-  color: #2B2823;
+  color: #262624;
   outline: none;
   transition: border-color 0.15s ease;
 }
@@ -29,15 +29,15 @@ body {
 
 /* Linha fina padrao do produto - usada em cards, divisores e bordas */
 .hairline {
-  border: 1px solid rgba(30, 27, 23, 0.10);
+  border: 1px solid rgba(38, 38, 36, 0.10);
 }
 
 .hairline-b {
-  border-bottom: 1px solid rgba(30, 27, 23, 0.10);
+  border-bottom: 1px solid rgba(38, 38, 36, 0.10);
 }
 
 .hairline-t {
-  border-top: 1px solid rgba(30, 27, 23, 0.10);
+  border-top: 1px solid rgba(38, 38, 36, 0.10);
 }
 
 /* Scrollbar discreta */
@@ -46,7 +46,7 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(30, 27, 23, 0.18);
+  background: rgba(38, 38, 36, 0.18);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {
