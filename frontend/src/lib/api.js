@@ -72,6 +72,8 @@ export const api = {
       method: "DELETE",
       headers: { "x-admin-password": adminPassword },
     }),
+  getAgentHistory: (id, adminPassword) =>
+    request(`/agents/${id}/history`, { headers: { "x-admin-password": adminPassword } }),
 
   // Pacotes (bundles)
   listBundles: (all = false) => request(`/bundles${all ? "?all=1" : ""}`),
@@ -102,6 +104,8 @@ export const api = {
     request(`/conversations`, { method: "POST", body: JSON.stringify(payload) }),
   getConversation: (id) => request(`/conversations/${id}`),
   deleteConversation: (id) => request(`/conversations/${id}`, { method: "DELETE" }),
+  generateSummary: (conversationId) =>
+    request(`/conversations/${conversationId}/summary`, { method: "POST" }),
 
   // Chat
   sendMessage: (payload) => request(`/chat`, { method: "POST", body: JSON.stringify(payload) }),
@@ -122,6 +126,21 @@ export const api = {
       headers: { "x-admin-password": adminPassword },
       body: JSON.stringify(payload),
     }),
+  adminGenerateSummary: (conversationId, adminPassword) =>
+    request(`/admin/conversations/${conversationId}/summary`, {
+      method: "POST",
+      headers: { "x-admin-password": adminPassword },
+    }),
+
+  // Analytics e auditoria (Painel Admin)
+  adminAnalytics: (adminPassword) =>
+    request(`/admin/analytics`, { headers: { "x-admin-password": adminPassword } }),
+  adminAuditLog: (adminPassword, params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/admin/audit-log${qs ? `?${qs}` : ""}`, {
+      headers: { "x-admin-password": adminPassword },
+    });
+  },
 
   // Settings / admin
   getSettings: () => request(`/settings`),

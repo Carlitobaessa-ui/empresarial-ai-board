@@ -5,6 +5,7 @@ import AgentIcon from "../components/AgentIcon.jsx";
 import AgentEditor from "./AgentEditor.jsx";
 import BundleEditor from "./BundleEditor.jsx";
 import UsersPanel from "./UsersPanel.jsx";
+import AnalyticsPanel from "./AnalyticsPanel.jsx";
 
 const PASSWORD_STORAGE_KEY = "board_admin_password";
 
@@ -279,6 +280,20 @@ export default function AdminPanel() {
         </div>
 
         <div className="px-4 py-3 hairline-t">
+          <button
+            onClick={() => {
+              setSelection({ kind: "analytics" });
+              setNotice("");
+            }}
+            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition hover:bg-surface ${
+              selection?.kind === "analytics" ? "bg-surface hairline" : ""
+            }`}
+          >
+            <span className="text-sm text-ink">Analytics & auditoria</span>
+          </button>
+        </div>
+
+        <div className="px-4 py-3 hairline-t">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs uppercase tracking-wide text-ink-muted">Cobranca</span>
             <span
@@ -319,6 +334,7 @@ export default function AdminPanel() {
             agent={selection.item}
             isNew={selection.isNew}
             saving={saving}
+            password={password}
             onSave={handleSaveAgent}
             onDelete={handleDeleteAgent}
             onCancel={() => setSelection(null)}
@@ -341,6 +357,8 @@ export default function AdminPanel() {
         {selection?.kind === "users" && (
           <UsersPanel users={users} loading={usersLoading} onRefresh={loadUsers} />
         )}
+
+        {selection?.kind === "analytics" && <AnalyticsPanel password={password} />}
 
         {!selection && (
           <div className="flex-1 flex items-center justify-center text-ink-muted text-sm px-8 text-center">

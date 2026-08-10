@@ -3,6 +3,8 @@ import { nanoid } from "nanoid";
 import { db } from "../db.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { hasAccessToAgent } from "../services/access.js";
+import { summarizeConversation } from "../services/anthropic.js";
+import { logEvent } from "../services/events.js";
 
 const router = Router();
 
@@ -60,6 +62,46 @@ router.get("/:id", requireAuth, (req, res) => {
     .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1));
 
   res.json({ ...conversation, messages });
+});
+
+// Gera (ou regenera) um resumo executivo desta conversa usando IA - o
+// proprio usuario pode pedir para entender rapidamente o que foi discutido
+// e quais foram as recomendacoes do agente, sem reler tudo.
+router.post("/:id/summary", requireAuth, async (req, res) => {
+  const conversation = db.data.conversations.find(
+    (c) => c.id === req.params.id && c.userId === req.user.id
+  );
+  if (!conversation) return res.status(404).json({ error: "Conversa não encontrada." });
+
+  const agent = db.data.agents.find((a) => a.id === conversation.agentId);
+  if (!agent) return res.status(404).json({ error: "Agente não encontrado." });
+
+  const messages = db.data.messages
+    .filter((m) => m.conversationId === conversation.id)
+    .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1));
+
+  if (messages.length === 0) {
+    return res.status(400).json({ error: "Esta conversa ainda não tem mensagens para resumir." });
+  }
+
+  try {
+    const summary = await summarizeConversation({ agent, messages });
+    conversation.summary = summary;
+    conversation.summaryGeneratedAt = new Date().toISOString();
+    await db.write();
+
+    await logEvent({
+      type: "summary_generated",
+      actor: req.user.id,
+      entityType: "conversation",
+      entityId: conversation.id,
+      meta: { source: "user" },
+    });
+
+    res.json({ summary: conversation.summary, summaryGeneratedAt: conversation.summaryGeneratedAt });
+  } catch (err) {
+    res.status(500).json({ error: err.message || "Erro ao gerar resumo." });
+  }
 });
 
 router.delete("/:id", requireAuth, async (req, res) => {

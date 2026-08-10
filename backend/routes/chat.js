@@ -5,6 +5,7 @@ import { askAgent, isConfigured } from "../services/anthropic.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { hasAccessToAgent } from "../services/access.js";
 import { sanitizeAttachments } from "../services/attachments.js";
+import { logEvent } from "../services/events.js";
 
 const router = Router();
 
@@ -88,6 +89,14 @@ router.post("/", requireAuth, async (req, res) => {
     db.data.messages.push(assistantMessage);
     conversation.updatedAt = assistantMessage.createdAt;
     await db.write();
+
+    await logEvent({
+      type: "agent_message",
+      actor: req.user.id,
+      entityType: "agent",
+      entityId: agent.id,
+      meta: { conversationId, agentSlug: agent.slug, agentName: agent.name },
+    });
 
     res.json({ userMessage, assistantMessage });
   } catch (err) {

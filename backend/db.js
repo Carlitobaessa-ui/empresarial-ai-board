@@ -17,6 +17,7 @@ const defaultData = {
   bundles: [],
   users: [],
   subscriptions: [],
+  events: [],
 };
 
 // Em producao (Render), o filesystem local e efemero - qualquer alteracao

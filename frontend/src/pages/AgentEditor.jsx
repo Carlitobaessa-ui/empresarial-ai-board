@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AgentIcon from "../components/AgentIcon.jsx";
+import { api } from "../lib/api.js";
 
 const ICONS = ["board", "ceo", "cio", "cfo", "processos"];
 
@@ -28,12 +29,36 @@ const emptyAgent = {
   stripePriceId: "",
 };
 
-export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, saving }) {
+export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, saving, password }) {
   const [form, setForm] = useState(agent || emptyAgent);
+  const [history, setHistory] = useState([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState("");
 
   useEffect(() => {
     setForm(agent || emptyAgent);
+    setHistory([]);
+    setHistoryOpen(false);
+    setHistoryError("");
   }, [agent]);
+
+  function loadHistory() {
+    if (!agent?.id) return;
+    setHistoryLoading(true);
+    setHistoryError("");
+    api
+      .getAgentHistory(agent.id, password)
+      .then(setHistory)
+      .catch((err) => setHistoryError(err.message))
+      .finally(() => setHistoryLoading(false));
+  }
+
+  function toggleHistory() {
+    const next = !historyOpen;
+    setHistoryOpen(next);
+    if (next && history.length === 0) loadHistory();
+  }
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -201,6 +226,61 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
           value={form.tone}
           onChange={(v) => update("tone", v)}
         />
+
+        {!isNew && (
+          <section className="hairline rounded-xl2 bg-surface p-4">
+            <button
+              type="button"
+              onClick={toggleHistory}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <span className="text-sm font-medium text-ink">Histórico de alterações</span>
+              <span className="text-xs text-ink-muted">{historyOpen ? "▲ ocultar" : "▼ ver histórico"}</span>
+            </button>
+            {historyOpen && (
+              <div className="mt-3">
+                {historyLoading ? (
+                  <p className="text-xs text-ink-muted">Carregando histórico...</p>
+                ) : historyError ? (
+                  <p className="text-xs text-red-700">{historyError}</p>
+                ) : history.length === 0 ? (
+                  <p className="text-xs text-ink-muted">Nenhuma alteração registrada para este agente ainda.</p>
+                ) : (
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
+                    {history.map((h) => (
+                      <div key={h.id} className="text-xs hairline-b pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 rounded bg-ink/10 text-ink-muted">
+                            {h.type === "agent_created"
+                              ? "criado"
+                              : h.type === "agent_updated"
+                                ? "atualizado"
+                                : h.type}
+                          </span>
+                          <span className="text-ink-muted">
+                            {new Date(h.createdAt).toLocaleString("pt-BR")}
+                          </span>
+                        </div>
+                        {h.changedFields && h.changedFields.length > 0 && (
+                          <ul className="mt-1 space-y-0.5 pl-1">
+                            {h.changedFields.map((c) => (
+                              <li key={c.field} className="text-ink-muted">
+                                <span className="text-ink">{c.field}</span>:{" "}
+                                <span className="line-through">{String(c.before ?? "").slice(0, 60) || "(vazio)"}</span>
+                                {" → "}
+                                <span>{String(c.after ?? "").slice(0, 60) || "(vazio)"}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        )}
 
         <div className="flex items-center justify-between pt-4 hairline-t">
           <div>

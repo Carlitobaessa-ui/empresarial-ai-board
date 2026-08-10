@@ -87,6 +87,55 @@ function ConsultReplyBox({ conversationId, authorName, onSent }) {
   );
 }
 
+function ConversationSummary({ conversation, onSent }) {
+  const [summary, setSummary] = useState(conversation.summary || "");
+  const [generatedAt, setGeneratedAt] = useState(conversation.summaryGeneratedAt || "");
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleGenerate() {
+    if (generating) return;
+    setGenerating(true);
+    setError("");
+    try {
+      const adminPassword = sessionStorage.getItem("board_admin_password") || "";
+      const res = await api.adminGenerateSummary(conversation.id, adminPassword);
+      setSummary(res.summary);
+      setGeneratedAt(res.summaryGeneratedAt);
+      onSent?.();
+    } catch (err) {
+      setError(err.message || "Falha ao gerar resumo. Tente novamente.");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  return (
+    <div className="mb-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] uppercase tracking-wide text-ink-muted">Resumo executivo</span>
+        <button
+          type="button"
+          onClick={handleGenerate}
+          disabled={generating}
+          className="text-[11px] text-accent-dark hover:underline disabled:opacity-50"
+        >
+          {generating ? "Gerando..." : summary ? "Regenerar resumo" : "Gerar resumo executivo"}
+        </button>
+      </div>
+      {error && <p className="text-[11px] text-red-700 mt-1">{error}</p>}
+      {summary && (
+        <div className="mt-1.5 hairline rounded-lg p-2 bg-surface">
+          <p className="text-xs text-ink whitespace-pre-wrap">{summary}</p>
+          {generatedAt && (
+            <p className="text-[10px] text-ink-muted mt-1">Gerado em {formatDate(generatedAt)}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ConversationThread({ conversation, authorName, onSent }) {
   return (
     <div className="hairline rounded-lg p-3 bg-cream/60">
@@ -96,6 +145,7 @@ function ConversationThread({ conversation, authorName, onSent }) {
           {formatDate(conversation.updatedAt)}
         </span>
       </div>
+      <ConversationSummary conversation={conversation} onSent={onSent} />
       {conversation.messages.length === 0 ? (
         <p className="text-xs text-ink-muted">Conversa criada, sem mensagens ainda.</p>
       ) : (

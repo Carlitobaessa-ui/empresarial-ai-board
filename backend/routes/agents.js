@@ -2,6 +2,7 @@ import { Router } from "express";
 import { nanoid } from "nanoid";
 import { db } from "../db.js";
 import { requireAdmin } from "../middleware/auth.js";
+import { logEvent } from "../services/events.js";
 
 const router = Router();
 
@@ -32,6 +33,31 @@ router.get("/:id", (req, res) => {
   const agent = db.data.agents.find((a) => a.id === req.params.id);
   if (!agent) return res.status(404).json({ error: "Agente nao encontrado." });
   res.json(agent);
+});
+
+// Historico de alteracoes deste agente (trilha de auditoria + versoes) -
+// admin-only. Cada entrada mostra quais campos mudaram e o valor antes/depois,
+// para investigar rapidamente "o que mudou e quando" sem depender de memoria.
+router.get("/:id/history", requireAdmin, (req, res) => {
+  const events = db.data.events
+    .filter((e) => e.entityType === "agent" && e.entityId === req.params.id)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .map((e) => {
+      let changedFields = [];
+      if (e.type === "agent_updated" && e.before && e.after) {
+        changedFields = EDITABLE_FIELDS.filter(
+          (f) => JSON.stringify(e.before[f]) !== JSON.stringify(e.after[f])
+        ).map((f) => ({ field: f, before: e.before[f], after: e.after[f] }));
+      }
+      return {
+        id: e.id,
+        type: e.type,
+        actor: e.actor,
+        createdAt: e.createdAt,
+        changedFields,
+      };
+    });
+  res.json(events);
 });
 
 // Criar novo agente especialista (admin)
@@ -65,6 +91,13 @@ router.post("/", requireAdmin, async (req, res) => {
 
   db.data.agents.push(agent);
   await db.write();
+  await logEvent({
+    type: "agent_created",
+    actor: req.ip,
+    entityType: "agent",
+    entityId: agent.id,
+    after: agent,
+  });
   res.status(201).json(agent);
 });
 
@@ -73,12 +106,22 @@ router.put("/:id", requireAdmin, async (req, res) => {
   const agent = db.data.agents.find((a) => a.id === req.params.id);
   if (!agent) return res.status(404).json({ error: "Agente nao encontrado." });
 
+  const before = { ...agent };
+
   for (const field of EDITABLE_FIELDS) {
     if (req.body[field] !== undefined) agent[field] = req.body[field];
   }
   agent.updatedAt = new Date().toISOString();
 
   await db.write();
+  await logEvent({
+    type: "agent_updated",
+    actor: req.ip,
+    entityType: "agent",
+    entityId: agent.id,
+    before,
+    after: { ...agent },
+  });
   res.json(agent);
 });
 
@@ -87,8 +130,15 @@ router.delete("/:id", requireAdmin, async (req, res) => {
   const idx = db.data.agents.findIndex((a) => a.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: "Agente nao encontrado." });
 
-  db.data.agents.splice(idx, 1);
+  const [removed] = db.data.agents.splice(idx, 1);
   await db.write();
+  await logEvent({
+    type: "agent_deleted",
+    actor: req.ip,
+    entityType: "agent",
+    entityId: req.params.id,
+    before: removed,
+  });
   res.json({ ok: true });
 });
 

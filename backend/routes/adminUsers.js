@@ -25,6 +25,8 @@ router.get("/", requireAdmin, (_req, res) => {
           title: c.title,
           createdAt: c.createdAt,
           updatedAt: c.updatedAt,
+          summary: c.summary || null,
+          summaryGeneratedAt: c.summaryGeneratedAt || null,
           messages,
         };
       })

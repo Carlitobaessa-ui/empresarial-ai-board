@@ -4,6 +4,7 @@ import { db } from "../db.js";
 import { hashPassword, verifyPassword, signToken, toSafeUser } from "../services/auth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { authLimiter } from "../middleware/rateLimit.js";
+import { logEvent } from "../services/events.js";
 import {
   verifyGoogleIdToken,
   verifyAppleIdToken,
@@ -77,6 +78,7 @@ router.post("/signup", authLimiter, async (req, res) => {
 
   db.data.users.push(user);
   await db.write();
+  await logEvent({ type: "user_signup", actor: user.id, entityType: "user", entityId: user.id, meta: { provider: "password" } });
 
   const token = signToken(user);
   res.status(201).json({ token, user: toSafeUser(user) });
@@ -99,6 +101,8 @@ router.post("/login", authLimiter, async (req, res) => {
     return res.status(401).json({ error: "E-mail ou senha incorretos." });
   }
 
+  await logEvent({ type: "user_login", actor: user.id, entityType: "user", entityId: user.id, meta: { provider: "password" } });
+
   const token = signToken(user);
   res.json({ token, user: toSafeUser(user) });
 });
@@ -110,6 +114,7 @@ router.post("/google", async (req, res) => {
   try {
     const { email, name, providerId } = await verifyGoogleIdToken(credential);
     const user = await loginOrCreateSocialUser({ email, name, provider: "google", providerId });
+    await logEvent({ type: "user_login", actor: user.id, entityType: "user", entityId: user.id, meta: { provider: "google" } });
     const token = signToken(user);
     res.json({ token, user: toSafeUser(user) });
   } catch (err) {
@@ -124,6 +129,7 @@ router.post("/apple", async (req, res) => {
   try {
     const { email, providerId } = await verifyAppleIdToken(identityToken);
     const user = await loginOrCreateSocialUser({ email, name, provider: "apple", providerId });
+    await logEvent({ type: "user_login", actor: user.id, entityType: "user", entityId: user.id, meta: { provider: "apple" } });
     const token = signToken(user);
     res.json({ token, user: toSafeUser(user) });
   } catch (err) {

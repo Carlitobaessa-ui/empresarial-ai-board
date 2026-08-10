@@ -134,3 +134,57 @@ export async function askAgent({ agent, history }) {
   const textBlock = response.content.find((block) => block.type === "text");
   return textBlock ? textBlock.text : "";
 }
+
+// Gera um resumo executivo de uma conversa inteira: principais pontos
+// discutidos, recomendacoes do agente e proximos passos sugeridos. Usado
+// tanto pelo usuario final quanto pelo Painel Admin, para nao precisar ler
+// mensagem por mensagem para entender o andamento de uma sessao.
+export async function summarizeConversation({ agent, messages }) {
+  const anthropic = getClient();
+  if (!anthropic) {
+    throw new Error(
+      "ANTHROPIC_API_KEY nao configurada no backend (.env). Configure a chave para gerar resumos."
+    );
+  }
+
+  const model = process.env.CLAUDE_MODEL || "claude-sonnet-4-5-20250929";
+
+  const transcript = messages
+    .map((m) => {
+      const label =
+        m.role === "user"
+          ? "Usuario"
+          : m.role === "consultant"
+            ? `Consultor (${m.authorName || "Consultor"})`
+            : agent.name;
+      return `${label}: ${m.content || "(mensagem sem texto, possivelmente so anexo)"}`;
+    })
+    .join("\n\n");
+
+  const system = `Voce resume conversas de um conselho consultivo de IA para o
+usuario e para o administrador do sistema. Seja direto e estruturado.
+Responda em portugues do Brasil, em no maximo 200 palavras, usando este
+formato:
+
+Resumo: (2-3 frases sobre o que foi discutido)
+Principais recomendacoes: (lista curta)
+Proximos passos sugeridos: (lista curta, se houver)
+
+Se a conversa nao tiver conteudo suficiente para resumir, diga isso
+claramente em vez de inventar informacao.`;
+
+  const response = await anthropic.messages.create({
+    model,
+    max_tokens: 500,
+    system,
+    messages: [
+      {
+        role: "user",
+        content: `Conversa com o agente "${agent.name}" (${agent.role}):\n\n${transcript}`,
+      },
+    ],
+  });
+
+  const textBlock = response.content.find((block) => block.type === "text");
+  return textBlock ? textBlock.text : "";
+}
