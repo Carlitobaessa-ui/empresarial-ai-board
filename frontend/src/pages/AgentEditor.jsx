@@ -153,12 +153,14 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
             />
           </Field>
           <Field label="Icone">
-            <div className="flex flex-wrap gap-2 max-w-md">
+            <div className="flex flex-wrap gap-2 max-w-md" role="group" aria-label="Icone do agente">
               {ICONS.map((icon) => (
                 <button
                   type="button"
                   key={icon}
                   title={ICON_LABELS[icon] || icon}
+                  aria-label={ICON_LABELS[icon] || icon}
+                  aria-pressed={form.icon === icon}
                   onClick={() => update("icon", icon)}
                   className={`w-9 h-9 rounded-full flex items-center justify-center hairline transition hover:bg-accent-soft/30 ${
                     form.icon === icon ? "ring-1 ring-accent" : ""
@@ -176,6 +178,7 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
           <Field label="Cor de identidade">
             <input
               type="color"
+              aria-label="Cor de identidade do agente"
               value={form.color}
               onChange={(e) => update("color", e.target.value)}
               className="h-10 w-16 hairline rounded-lg bg-transparent"
@@ -269,10 +272,14 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
             <button
               type="button"
               onClick={toggleHistory}
+              aria-expanded={historyOpen}
               className="w-full flex items-center justify-between text-left"
             >
               <span className="text-sm font-medium text-ink">Histórico de alterações</span>
-              <span className="text-xs text-ink-muted">{historyOpen ? "▲ ocultar" : "▼ ver histórico"}</span>
+              <span className="text-xs text-ink-muted">
+                <span aria-hidden="true">{historyOpen ? "▲ " : "▼ "}</span>
+                {historyOpen ? "ocultar" : "ver histórico"}
+              </span>
             </button>
             {historyOpen && (
               <div className="mt-3">

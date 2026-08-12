@@ -9,6 +9,11 @@
 // chip de circuito para tecnologia, curva de crescimento para financas,
 // ciclo continuo para processos, balanca para juridico, escudo para
 // seguranca/governanca, radar para dados, e assim por diante.
+// aria-hidden por padrao: em todo o app, o AgentIcon aparece ao lado de um
+// texto visivel (nome do agente, titulo do botao) que ja descreve o
+// elemento - expor o SVG tambem para leitores de tela duplicaria o anuncio.
+// Quando o icone e o UNICO conteudo de um controle interativo (ex.: botao
+// do seletor de icone no AgentEditor), o proprio botao recebe aria-label.
 export default function AgentIcon({ icon, className = "w-6 h-6", strokeWidth = 1.3 }) {
   const common = {
     className,
@@ -18,6 +23,8 @@ export default function AgentIcon({ icon, className = "w-6 h-6", strokeWidth = 1
     strokeWidth,
     strokeLinecap: "round",
     strokeLinejoin: "round",
+    "aria-hidden": "true",
+    focusable: "false",
   };
 
   switch (icon) {

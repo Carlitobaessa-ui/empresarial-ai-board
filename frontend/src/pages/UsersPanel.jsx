@@ -183,6 +183,7 @@ function UserCard({ user, authorName, onSent }) {
     <div className="hairline rounded-xl2 bg-surface overflow-hidden">
       <button
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-cream/50 transition"
       >
         <div>
@@ -197,7 +198,7 @@ function UserCard({ user, authorName, onSent }) {
             {user.conversationCount} conversa{user.conversationCount === 1 ? "" : "s"} ·{" "}
             {user.messageCount} msg{user.messageCount === 1 ? "" : "s"}
           </span>
-          <span className="text-xs text-ink-muted">{open ? "▲" : "▼"}</span>
+          <span className="text-xs text-ink-muted" aria-hidden="true">{open ? "▲" : "▼"}</span>
         </div>
       </button>
 

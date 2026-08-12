@@ -8,8 +8,12 @@ import AgentIcon from "./AgentIcon.jsx";
 // protegidas, ou fullScreen={false} para embutir dentro de um painel/card.
 export default function LoadingScreen({ label = "Carregando...", fullScreen = true }) {
   const content = (
-    <div className="flex flex-col items-center justify-center gap-5">
-      <div className="relative w-28 h-28">
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex flex-col items-center justify-center gap-5"
+    >
+      <div className="relative w-28 h-28" aria-hidden="true">
         <div
           className="absolute inset-0 rounded-full animate-[spin_14s_linear_infinite_reverse]"
           style={{ border: "1px dashed rgba(38,38,36,0.14)" }}

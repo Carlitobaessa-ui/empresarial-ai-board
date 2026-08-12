@@ -19,6 +19,8 @@ export function AttachIcon({ className = "w-4 h-4" }) {
       strokeWidth={1.4}
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
     >
       <path d="M20.1 11.1 L11.4 19.8 a4.7 4.7 0 0 1-6.6-6.6 l8.6-8.6 a3.2 3.2 0 0 1 4.5 4.5 l-8.4 8.4 a1.7 1.7 0 0 1-2.4-2.4 l7.7-7.7" />
     </svg>
@@ -35,6 +37,8 @@ export function MicIcon({ className = "w-4 h-4" }) {
       strokeWidth={1.4}
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
     >
       <rect x="9.4" y="3.3" width="5.2" height="9.4" rx="2.6" />
       <path d="M6.2 11.2 v1.2 a5.8 5.8 0 0 0 11.6 0 v-1.2" />
@@ -54,6 +58,8 @@ function StopIcon({ className = "w-4 h-4" }) {
       strokeWidth={1.4}
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
     >
       <circle cx="12" cy="12" r="8.4" />
       <rect x="9.3" y="9.3" width="5.4" height="5.4" rx="1" fill="currentColor" stroke="none" />
@@ -277,6 +283,7 @@ export default function MessageComposer({
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || sending}
           title="Anexar arquivo"
+          aria-label="Anexar arquivo"
           className="shrink-0 text-ink-muted hover:text-ink disabled:opacity-30 transition px-1 py-1.5 leading-none"
         >
           <AttachIcon />
@@ -287,6 +294,7 @@ export default function MessageComposer({
           onClick={toggleRecording}
           disabled={disabled || sending}
           title={recording ? "Parar gravação" : "Gravar áudio"}
+          aria-label={recording ? "Parar gravação" : "Gravar áudio"}
           className={`shrink-0 px-1 py-1.5 leading-none transition disabled:opacity-30 ${
             recording ? "text-red-600" : "text-ink-muted hover:text-ink"
           }`}

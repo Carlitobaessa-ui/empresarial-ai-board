@@ -40,13 +40,32 @@ function StatCard({ label, value }) {
 }
 
 // Grafico de barras simples em CSS puro (sem dependencia externa) para
-// mensagens por dia nos ultimos 14 dias.
+// mensagens por dia nos ultimos 14 dias. O grafico em si e marcado como
+// decorativo (aria-hidden) porque um leitor de tela nao consegue interpretar
+// barras via CSS de forma util - em vez disso, o wrapper recebe role="img"
+// com um resumo textual (total e pico do periodo) como descricao acessivel.
 function MiniBarChart({ data }) {
   const max = Math.max(1, ...data.map((d) => d.count));
+  const total = data.reduce((sum, d) => sum + d.count, 0);
+  const peak = data.reduce((best, d) => (d.count > best.count ? d : best), data[0] || { count: 0, date: "" });
+  const summary =
+    total === 0
+      ? "Nenhuma mensagem registrada nos ultimos 14 dias."
+      : `${total} mensagens nos ultimos 14 dias, com pico de ${peak.count} em ${peak.date}.`;
+
   return (
-    <div className="flex items-end gap-1 h-24">
+    <div
+      role="img"
+      aria-label={summary}
+      className="flex items-end gap-1 h-24"
+    >
       {data.map((d) => (
-        <div key={d.date} className="flex-1 flex flex-col items-center justify-end h-full" title={`${d.date}: ${d.count}`}>
+        <div
+          key={d.date}
+          className="flex-1 flex flex-col items-center justify-end h-full"
+          title={`${d.date}: ${d.count}`}
+          aria-hidden="true"
+        >
           <div
             className="w-full bg-accent-dark/70 rounded-t"
             style={{ height: `${Math.max(2, (d.count / max) * 100)}%` }}
