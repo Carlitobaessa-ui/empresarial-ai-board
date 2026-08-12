@@ -36,9 +36,12 @@ export default function Sidebar({
         </Link>
       </div>
 
-      <div className="px-4 pt-4 pb-2 text-xs uppercase tracking-wide text-ink-muted">
+      <div className="px-4 pt-4 pb-1 text-xs uppercase tracking-wide text-ink-muted">
         Agentes especialistas
       </div>
+      <p className="px-4 pb-2 text-[10.5px] leading-snug text-ink-muted">
+        Escolha um agente para conversar. O preço aparece nos que você ainda não assina.
+      </p>
       <div className="px-3 space-y-1.5 pb-3">
         {agents.map((agent) => {
           const unlocked = unlockedAgentIds.includes(agent.id);
@@ -67,7 +70,7 @@ export default function Sidebar({
         })}
       </div>
 
-      <div className="hairline-t px-4 pt-3 pb-2 flex items-center justify-between">
+      <div className="hairline-t px-4 pt-3 pb-1 flex items-center justify-between">
         <span className="text-xs uppercase tracking-wide text-ink-muted">Conversas</span>
         <button
           onClick={onNewConversation}
@@ -76,6 +79,9 @@ export default function Sidebar({
           + Nova
         </button>
       </div>
+      <p className="px-4 pb-2 text-[10.5px] leading-snug text-ink-muted">
+        Histórico de conversas com o agente selecionado acima.
+      </p>
       <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-1">
         {conversations.length === 0 && (
           <p className="text-xs text-ink-muted px-2.5 py-2">Nenhuma conversa ainda.</p>

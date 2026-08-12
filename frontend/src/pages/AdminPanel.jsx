@@ -199,7 +199,7 @@ export default function AdminPanel() {
           </Link>
         </div>
 
-        <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+        <div className="px-4 pt-4 pb-1 flex items-center justify-between">
           <span className="text-xs uppercase tracking-wide text-ink-muted">Agentes</span>
           <button
             onClick={() => {
@@ -211,6 +211,9 @@ export default function AdminPanel() {
             + Novo agente
           </button>
         </div>
+        <p className="px-4 pb-2 text-[10.5px] leading-snug text-ink-muted">
+          Especialistas de IA disponíveis para assinatura e chat.
+        </p>
         <div className="px-3 space-y-1 pb-3">
           {agents.map((agent) => (
             <button
@@ -235,7 +238,7 @@ export default function AdminPanel() {
           ))}
         </div>
 
-        <div className="px-4 pt-3 pb-2 hairline-t flex items-center justify-between">
+        <div className="px-4 pt-3 pb-1 hairline-t flex items-center justify-between">
           <span className="text-xs uppercase tracking-wide text-ink-muted">Pacotes</span>
           <button
             onClick={() => {
@@ -247,6 +250,9 @@ export default function AdminPanel() {
             + Novo pacote
           </button>
         </div>
+        <p className="px-4 pb-2 text-[10.5px] leading-snug text-ink-muted">
+          Grupos de agentes vendidos juntos, geralmente com desconto.
+        </p>
         <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
           {bundles.map((bundle) => (
             <button
@@ -274,8 +280,13 @@ export default function AdminPanel() {
               selection?.kind === "users" ? "bg-surface hairline" : ""
             }`}
           >
-            <span className="text-sm text-ink">Usuários e conversas</span>
-            <span className="text-[11px] text-ink-muted">{users.length}</span>
+            <span>
+              <span className="text-sm text-ink block">Usuários e conversas</span>
+              <span className="text-[10.5px] text-ink-muted block mt-0.5">
+                Veja e responda como consultor nas conversas de cada usuário.
+              </span>
+            </span>
+            <span className="text-[11px] text-ink-muted shrink-0 ml-2">{users.length}</span>
           </button>
         </div>
 
@@ -289,7 +300,12 @@ export default function AdminPanel() {
               selection?.kind === "analytics" ? "bg-surface hairline" : ""
             }`}
           >
-            <span className="text-sm text-ink">Analytics & auditoria</span>
+            <span>
+              <span className="text-sm text-ink block">Analytics & auditoria</span>
+              <span className="text-[10.5px] text-ink-muted block mt-0.5">
+                Uso do app e histórico de eventos do sistema.
+              </span>
+            </span>
           </button>
         </div>
 

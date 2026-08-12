@@ -113,7 +113,10 @@ function ConversationSummary({ conversation, onSent }) {
   return (
     <div className="mb-2">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] uppercase tracking-wide text-ink-muted">Resumo executivo</span>
+        <span>
+          <span className="text-[11px] uppercase tracking-wide text-ink-muted block">Resumo executivo</span>
+          <span className="text-[10px] text-ink-muted block">Gerado por IA a partir das mensagens desta conversa.</span>
+        </span>
         <button
           type="button"
           onClick={handleGenerate}
@@ -264,18 +267,24 @@ export default function UsersPanel({ users, loading, onRefresh }) {
       </div>
 
       <div className="flex flex-wrap gap-3 mb-4">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar por nome ou e-mail..."
-          className="input max-w-sm"
-        />
-        <input
-          value={authorName}
-          onChange={(e) => handleNameChange(e.target.value)}
-          placeholder="Seu nome (aparece nas respostas como consultor)"
-          className="input max-w-sm"
-        />
+        <div className="max-w-sm w-full">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por nome ou e-mail..."
+            className="input"
+          />
+          <p className="text-[10.5px] text-ink-muted mt-1">Filtra a lista abaixo pelo nome ou e-mail do usuário.</p>
+        </div>
+        <div className="max-w-sm w-full">
+          <input
+            value={authorName}
+            onChange={(e) => handleNameChange(e.target.value)}
+            placeholder="Seu nome (aparece nas respostas como consultor)"
+            className="input"
+          />
+          <p className="text-[10.5px] text-ink-muted mt-1">Nome exibido quando você responde diretamente em uma conversa.</p>
+        </div>
       </div>
 
       {loading && users.length === 0 ? (

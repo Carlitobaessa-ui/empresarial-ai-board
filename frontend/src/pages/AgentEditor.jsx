@@ -125,7 +125,7 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
         </div>
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Nome do agente">
+          <Field label="Nome do agente" help="Como o agente aparece para quem conversa com ele (sidebar, cards de planos, cabecalho do chat).">
             <input
               required
               value={form.name}
@@ -134,7 +134,7 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
               placeholder="Ex.: CEO"
             />
           </Field>
-          <Field label="Identificador (slug)">
+          <Field label="Identificador (slug)" help="Codigo unico usado internamente (URLs e integracoes). Nao pode ser alterado depois de criado.">
             <input
               required
               disabled={!isNew}
@@ -144,7 +144,7 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
               placeholder="ex.: ceo"
             />
           </Field>
-          <Field label="Papel / titulo">
+          <Field label="Papel / titulo" help="Subtitulo curto exibido junto ao nome (ex.: abaixo do nome no chat e nos cards).">
             <input
               value={form.role}
               onChange={(e) => update("role", e.target.value)}
@@ -152,30 +152,39 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
               placeholder="Ex.: Direcao Executiva / CEO"
             />
           </Field>
-          <Field label="Icone">
-            <div className="flex flex-wrap gap-2 max-w-md" role="group" aria-label="Icone do agente">
+          <Field
+            label="Icone"
+            help="Cada icone e um desenho de linha fina que representa o papel do agente. O nome de cada um fica sempre visivel abaixo do desenho."
+          >
+            <div
+              className="grid grid-cols-[repeat(auto-fill,minmax(70px,1fr))] gap-1.5 max-w-xl"
+              role="group"
+              aria-label="Icone do agente"
+            >
               {ICONS.map((icon) => (
                 <button
                   type="button"
                   key={icon}
-                  title={ICON_LABELS[icon] || icon}
-                  aria-label={ICON_LABELS[icon] || icon}
                   aria-pressed={form.icon === icon}
                   onClick={() => update("icon", icon)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center hairline transition hover:bg-accent-soft/30 ${
-                    form.icon === icon ? "ring-1 ring-accent" : ""
+                  className={`flex flex-col items-center gap-1.5 py-2 px-1 rounded-lg hairline transition hover:bg-accent-soft/20 ${
+                    form.icon === icon ? "ring-1 ring-accent bg-accent-soft/20" : "bg-surface"
                   }`}
-                  style={{ color: form.color }}
                 >
-                  <AgentIcon icon={icon} className="w-5 h-5" />
+                  <span className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: form.color }}>
+                    <AgentIcon icon={icon} className="w-[18px] h-[18px]" />
+                  </span>
+                  <span className="text-[9.5px] leading-tight text-ink-muted text-center">
+                    {ICON_LABELS[icon] || icon}
+                  </span>
                 </button>
               ))}
             </div>
             <p className="text-[11px] text-ink-muted mt-1.5">
-              {ICON_LABELS[form.icon] || form.icon}
+              Icone selecionado: <span className="text-ink">{ICON_LABELS[form.icon] || form.icon}</span>
             </p>
           </Field>
-          <Field label="Cor de identidade">
+          <Field label="Cor de identidade" help="Usada no icone, nas bordas de destaque e nas legendas com o nome do agente em toda a interface.">
             <input
               type="color"
               aria-label="Cor de identidade do agente"
@@ -184,7 +193,7 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
               className="h-10 w-16 hairline rounded-lg bg-transparent"
             />
           </Field>
-          <Field label="Ativo no app de chat">
+          <Field label="Ativo no app de chat" help="Quando desativado, o agente some da lista de especialistas mas o historico de conversas existente e preservado.">
             <label className="flex items-center gap-2 text-sm text-ink-muted mt-2">
               <input
                 type="checkbox"
@@ -196,7 +205,7 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
           </Field>
         </section>
 
-        <Field label="Descricao curta (aparece nos cards)">
+        <Field label="Descricao curta (aparece nos cards)" help="Frase de 1-2 linhas que resume o que o agente faz - usada na Landing, nos planos e no inicio do chat.">
           <textarea
             rows={2}
             value={form.shortDescription}
@@ -208,7 +217,7 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
         <hr className="hairline-t border-0" />
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Preço mensal (R$)">
+          <Field label="Preço mensal (R$)" help="Valor cobrado por mes ao assinar este agente individualmente (fora de pacotes).">
             <input
               type="number"
               min="0"
@@ -275,8 +284,13 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
               aria-expanded={historyOpen}
               className="w-full flex items-center justify-between text-left"
             >
-              <span className="text-sm font-medium text-ink">Histórico de alterações</span>
-              <span className="text-xs text-ink-muted">
+              <span>
+                <span className="text-sm font-medium text-ink block">Histórico de alterações</span>
+                <span className="text-[11px] text-ink-muted block mt-0.5">
+                  Quem criou o agente e quais campos mudaram em cada edição, com data e valor antes/depois.
+                </span>
+              </span>
+              <span className="text-xs text-ink-muted shrink-0 ml-3">
                 <span aria-hidden="true">{historyOpen ? "▲ " : "▼ "}</span>
                 {historyOpen ? "ocultar" : "ver histórico"}
               </span>
@@ -356,10 +370,11 @@ export default function AgentEditor({ agent, isNew, onSave, onDelete, onCancel, 
   );
 }
 
-function Field({ label, children }) {
+function Field({ label, help, children }) {
   return (
     <div>
       <label className="text-xs uppercase tracking-wide text-ink-muted">{label}</label>
+      {help && <p className="text-[11px] text-ink-muted mt-0.5">{help}</p>}
       <div className="mt-1.5">{children}</div>
     </div>
   );

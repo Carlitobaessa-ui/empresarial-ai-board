@@ -53,6 +53,7 @@ export default function BundleEditor({ bundle, isNew, agents, onSave, onDelete, 
 
         <div>
           <label className="text-xs uppercase tracking-wide text-ink-muted">Nome do pacote</label>
+          <p className="text-[11px] text-ink-muted mt-0.5">Como o pacote aparece na página de planos.</p>
           <input
             required
             value={form.name}
@@ -64,6 +65,7 @@ export default function BundleEditor({ bundle, isNew, agents, onSave, onDelete, 
 
         <div>
           <label className="text-xs uppercase tracking-wide text-ink-muted">Descrição</label>
+          <p className="text-[11px] text-ink-muted mt-0.5">Frase curta explicando o que esse pacote oferece, exibida abaixo do nome nos planos.</p>
           <textarea
             rows={2}
             value={form.description}
@@ -74,6 +76,7 @@ export default function BundleEditor({ bundle, isNew, agents, onSave, onDelete, 
 
         <div>
           <label className="text-xs uppercase tracking-wide text-ink-muted">Agentes incluídos</label>
+          <p className="text-[11px] text-ink-muted mt-0.5">Marque os agentes que quem assinar este pacote passa a ter acesso.</p>
           <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
             {agents.map((agent) => {
               const checked = form.agentIds.includes(agent.id);
@@ -103,6 +106,7 @@ export default function BundleEditor({ bundle, isNew, agents, onSave, onDelete, 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-xs uppercase tracking-wide text-ink-muted">Preço do pacote (R$)</label>
+            <p className="text-[11px] text-ink-muted mt-0.5">Valor mensal cobrado pelo pacote completo (geralmente menor que a soma dos agentes avulsos).</p>
             <input
               type="number"
               min="0"
@@ -114,6 +118,7 @@ export default function BundleEditor({ bundle, isNew, agents, onSave, onDelete, 
           </div>
           <div>
             <label className="text-xs uppercase tracking-wide text-ink-muted">Stripe Price ID</label>
+            <p className="text-[11px] text-ink-muted mt-0.5">Crie um Produto + Preço recorrente no Stripe Dashboard e cole o ID aqui.</p>
             <input
               value={form.stripePriceId || ""}
               onChange={(e) => update("stripePriceId", e.target.value)}
@@ -123,14 +128,17 @@ export default function BundleEditor({ bundle, isNew, agents, onSave, onDelete, 
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
-            checked={Boolean(form.active)}
-            onChange={(e) => update("active", e.target.checked ? 1 : 0)}
-          />
-          Visível na página de planos
-        </label>
+        <div>
+          <label className="flex items-center gap-2 text-sm text-ink-muted">
+            <input
+              type="checkbox"
+              checked={Boolean(form.active)}
+              onChange={(e) => update("active", e.target.checked ? 1 : 0)}
+            />
+            Visível na página de planos
+          </label>
+          <p className="text-[11px] text-ink-muted mt-0.5 ml-6">Quando desmarcado, o pacote fica oculto para novas assinaturas, mas quem ja assinou continua com acesso.</p>
+        </div>
 
         <div className="flex items-center justify-between pt-4 hairline-t">
           <div>

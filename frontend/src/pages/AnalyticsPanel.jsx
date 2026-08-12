@@ -134,12 +134,14 @@ export default function AnalyticsPanel({ password }) {
           </section>
 
           <section className="hairline rounded-xl2 bg-surface p-4">
-            <h2 className="text-sm font-medium text-ink mb-3">Mensagens por dia (14 dias)</h2>
+            <h2 className="text-sm font-medium text-ink">Mensagens por dia (14 dias)</h2>
+            <p className="text-[11px] text-ink-muted mb-3">Volume de respostas enviadas pelos agentes, por dia, nas ultimas duas semanas.</p>
             <MiniBarChart data={data.messagesPerDay} />
           </section>
 
           <section className="hairline rounded-xl2 bg-surface p-4">
-            <h2 className="text-sm font-medium text-ink mb-3">Agentes mais usados (30 dias)</h2>
+            <h2 className="text-sm font-medium text-ink">Agentes mais usados (30 dias)</h2>
+            <p className="text-[11px] text-ink-muted mb-3">Ranking de agentes por numero de mensagens respondidas no ultimo mes.</p>
             {data.topAgents.length === 0 ? (
               <p className="text-xs text-ink-muted">Sem mensagens registradas ainda.</p>
             ) : (
@@ -156,12 +158,14 @@ export default function AnalyticsPanel({ password }) {
 
           <section className="grid grid-cols-2 gap-4">
             <div className="hairline rounded-xl2 bg-surface p-4">
-              <h2 className="text-sm font-medium text-ink mb-2">Logins</h2>
+              <h2 className="text-sm font-medium text-ink mb-0.5">Logins</h2>
+              <p className="text-[11px] text-ink-muted mb-2">Quantidade de entradas na conta (e-mail/senha, Google ou Apple).</p>
               <p className="text-xs text-ink-muted">Últimos 7 dias: <span className="text-ink">{data.logins.last7d}</span></p>
               <p className="text-xs text-ink-muted">Últimos 30 dias: <span className="text-ink">{data.logins.last30d}</span></p>
             </div>
             <div className="hairline rounded-xl2 bg-surface p-4">
-              <h2 className="text-sm font-medium text-ink mb-2">Atividade admin (30 dias)</h2>
+              <h2 className="text-sm font-medium text-ink mb-0.5">Atividade admin (30 dias)</h2>
+              <p className="text-[11px] text-ink-muted mb-2">Alteracoes feitas no Painel Admin: agentes criados, editados ou excluidos, e resumos gerados.</p>
               <p className="text-xs text-ink-muted">Agentes criados: <span className="text-ink">{data.adminActivity.agentsCreated}</span></p>
               <p className="text-xs text-ink-muted">Agentes atualizados: <span className="text-ink">{data.adminActivity.agentsUpdated}</span></p>
               <p className="text-xs text-ink-muted">Agentes excluídos: <span className="text-ink">{data.adminActivity.agentsDeleted}</span></p>
@@ -170,7 +174,8 @@ export default function AnalyticsPanel({ password }) {
           </section>
 
           <section className="hairline rounded-xl2 bg-surface p-4">
-            <h2 className="text-sm font-medium text-ink mb-3">Trilha de auditoria recente</h2>
+            <h2 className="text-sm font-medium text-ink">Trilha de auditoria recente</h2>
+            <p className="text-[11px] text-ink-muted mb-3">Registro cronologico dos ultimos eventos do sistema: logins, mensagens, edicoes de agentes e resumos gerados.</p>
             {auditLog.length === 0 ? (
               <p className="text-xs text-ink-muted">Nenhum evento registrado ainda.</p>
             ) : (

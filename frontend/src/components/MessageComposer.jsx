@@ -334,6 +334,12 @@ export default function MessageComposer({
           {sending ? "Enviando..." : sendLabel}
         </button>
       </div>
+
+      {/* Legenda sempre visivel dos controles so-icone (anexar/gravar), ja
+          que eles nao tem texto proprio - complementa o title/aria-label. */}
+      <p className={`text-[10px] text-ink-muted mt-1 ${compact ? "" : "px-1"}`}>
+        Anexar arquivo · Gravar áudio · Enter envia, Shift+Enter quebra linha
+      </p>
     </div>
   );
 }
