@@ -6,11 +6,12 @@ import AdminPanel from "./pages/AdminPanel.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Pricing from "./pages/Pricing.jsx";
+import LoadingScreen from "./components/LoadingScreen.jsx";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-ink-muted text-sm">Carregando...</div>;
+    return <LoadingScreen />;
   }
   if (!user) return <Navigate to="/login" replace />;
   return children;
