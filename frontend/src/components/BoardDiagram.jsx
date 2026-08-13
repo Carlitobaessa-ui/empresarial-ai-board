@@ -45,7 +45,7 @@ export default function BoardDiagram({ agents = [] }) {
         cy={center.y}
         r={radius + 40}
         fill="none"
-        stroke="rgba(38,38,36,0.08)"
+        stroke="rgb(var(--color-ink) / 0.08)"
         strokeWidth="1"
         strokeDasharray="1.5 7"
       />
@@ -54,7 +54,7 @@ export default function BoardDiagram({ agents = [] }) {
         cy={center.y}
         r={radius}
         fill="none"
-        stroke="rgba(38,38,36,0.06)"
+        stroke="rgb(var(--color-ink) / 0.06)"
         strokeWidth="1"
       />
 
@@ -73,7 +73,7 @@ export default function BoardDiagram({ agents = [] }) {
               y1={center.y}
               x2={x}
               y2={y}
-              stroke="rgba(38,38,36,0.14)"
+              stroke="rgb(var(--color-ink) / 0.14)"
               strokeWidth="1"
             />
             <circle cx={midX} cy={midY} r="1.6" fill={agent.color || "#D97757"} />
@@ -82,8 +82,8 @@ export default function BoardDiagram({ agents = [] }) {
       })}
 
       {/* Centro: "voce" / conselho */}
-      <circle cx={center.x} cy={center.y} r="34" fill="#FFFFFF" stroke="#262624" strokeWidth="1" />
-      <circle cx={center.x} cy={center.y} r="29.5" fill="none" stroke="rgba(38,38,36,0.10)" strokeWidth="1" />
+      <circle cx={center.x} cy={center.y} r="34" fill="rgb(var(--color-surface))" stroke="rgb(var(--color-ink))" strokeWidth="1" />
+      <circle cx={center.x} cy={center.y} r="29.5" fill="none" stroke="rgb(var(--color-ink) / 0.10)" strokeWidth="1" />
       <foreignObject x={center.x - 16} y={center.y - 16} width="32" height="32">
         <div className="w-8 h-8 flex items-center justify-center text-ink">
           <AgentIcon icon="board" className="w-6 h-6" strokeWidth={1.2} />
@@ -101,7 +101,7 @@ export default function BoardDiagram({ agents = [] }) {
               cx={x}
               cy={y}
               r="26"
-              fill="#FFFFFF"
+              fill="rgb(var(--color-surface))"
               stroke={agent.color || "#D97757"}
               strokeWidth="1.2"
             />
@@ -118,7 +118,7 @@ export default function BoardDiagram({ agents = [] }) {
               y={y + 40}
               textAnchor="middle"
               fontSize="10"
-              fill="#6B665D"
+              fill="rgb(var(--color-ink-muted))"
               fontFamily="Inter, sans-serif"
             >
               {lines.map((line, li) => (

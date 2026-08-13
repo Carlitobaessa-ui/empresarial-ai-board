@@ -2,42 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Paleta - modo claro (padrao). Trincas "R G B" para permitir os
+   modificadores de opacidade do Tailwind (bg-ink/40, text-ink-muted/70...). */
+:root {
+  --color-cream: 250 249 245;
+  --color-surface: 255 255 255;
+  --color-ink: 38 38 36;
+  --color-ink-muted: 107 102 93;
+  --color-line: rgba(38, 38, 36, 0.10);
+  --color-accent: 217 119 87;
+  --color-accent-dark: 188 95 66;
+  --color-accent-soft: 241 223 211;
+}
+
+/* Paleta - modo escuro. Mesma estrutura tonal (fundo quente, tinta quase
+   branca, terracota como acento), sem preto/branco puros. Ativado ao
+   adicionar a classe "dark" na tag <html> (ver src/lib/theme.jsx). */
+.dark {
+  --color-cream: 30 28 26;
+  --color-surface: 38 36 33;
+  --color-ink: 240 236 229;
+  --color-ink-muted: 159 152 139;
+  --color-line: rgba(240, 236, 229, 0.12);
+  --color-accent: 224 134 103;
+  --color-accent-dark: 205 122 92;
+  --color-accent-soft: 61 44 38;
+}
+
 html, body, #root {
   height: 100%;
 }
 
 body {
-  background-color: #FAF9F5;
-  color: #262624;
+  background-color: rgb(var(--color-cream));
+  color: rgb(var(--color-ink));
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Campo de formulario padrao usado no Painel Admin */
 .input {
   width: 100%;
-  background: #FFFFFF;
-  border: 1px solid rgba(38, 38, 36, 0.14);
+  background: rgb(var(--color-surface));
+  border: 1px solid rgb(var(--color-ink) / 0.14);
   border-radius: 10px;
   padding: 11px 14px;
   font-size: 14px;
-  color: #262624;
+  color: rgb(var(--color-ink));
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.2s ease, color 0.2s ease;
 }
 .input:focus {
-  border-color: #D97757;
+  border-color: rgb(var(--color-accent));
 }
 
 /* Linha fina padrao do produto - usada em cards, divisores e bordas */
 .hairline {
-  border: 1px solid rgba(38, 38, 36, 0.10);
+  border: 1px solid var(--color-line);
 }
 
 .hairline-b {
-  border-bottom: 1px solid rgba(38, 38, 36, 0.10);
+  border-bottom: 1px solid var(--color-line);
 }
 
 .hairline-t {
-  border-top: 1px solid rgba(38, 38, 36, 0.10);
+  border-top: 1px solid var(--color-line);
 }
 
 /* Scrollbar discreta */
@@ -46,7 +74,7 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(38, 38, 36, 0.18);
+  background: rgb(var(--color-ink) / 0.18);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {

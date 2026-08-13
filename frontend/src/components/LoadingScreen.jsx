@@ -16,11 +16,11 @@ export default function LoadingScreen({ label = "Carregando...", fullScreen = tr
       <div className="relative w-28 h-28" aria-hidden="true">
         <div
           className="absolute inset-0 rounded-full animate-[spin_14s_linear_infinite_reverse]"
-          style={{ border: "1px dashed rgba(38,38,36,0.14)" }}
+          style={{ border: "1px dashed rgb(var(--color-ink) / 0.14)" }}
         />
         <div
           className="absolute inset-[10px] rounded-full animate-[spin_10s_linear_infinite]"
-          style={{ border: "1px solid rgba(38,38,36,0.10)" }}
+          style={{ border: "1px solid rgb(var(--color-ink) / 0.10)" }}
         />
 
         <div className="absolute inset-[6px] animate-[spin_4.5s_linear_infinite]">
@@ -32,7 +32,7 @@ export default function LoadingScreen({ label = "Carregando...", fullScreen = tr
         <div className="absolute inset-[18px] animate-[spin_3.2s_linear_infinite]">
           <span
             className="absolute -top-[2.5px] left-1/2 -translate-x-1/2 w-[5px] h-[5px] rounded-full"
-            style={{ background: "#6B665D" }}
+            style={{ background: "rgb(var(--color-ink-muted))" }}
           />
         </div>
 
